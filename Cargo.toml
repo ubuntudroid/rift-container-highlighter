@@ -19,6 +19,7 @@ libc = "0.2"
 # vendored revision, so the vendored FFI compiles as written. Default features
 # are left on: rift trims them hard for build size and does not even list
 # CALayer or CGContext, which the vendored code needs.
+objc2 = "0.6.2"
 objc2-core-foundation = "0.3.2"
 objc2-core-graphics = "0.3.2"
 objc2-quartz-core = "0.3.2"

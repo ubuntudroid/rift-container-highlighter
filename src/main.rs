@@ -1,5 +1,6 @@
 mod config;
 mod geometry;
+mod render;
 mod rift;
 mod vendor;
 
@@ -17,6 +18,12 @@ struct Cli {
 enum Command {
     /// Print the layout snapshot as JSON (debugging, fixture capture)
     Dump,
+    /// Flash container outlines for the active workspace
+    Peek {
+        /// Override the configured flash duration, in milliseconds
+        #[arg(long)]
+        ms: Option<u64>,
+    },
     /// Draw one solid rectangle for a few seconds (checks the overlay plumbing)
     TestOverlay {
         /// How long to keep it on screen, in seconds
@@ -66,6 +73,15 @@ fn main() -> Result<()> {
                 },
             });
             println!("{}", serde_json::to_string_pretty(&out)?);
+        }
+        Command::Peek { ms } => {
+            let mut cfg = config::Config::load()?;
+            if let Some(ms) = ms {
+                cfg.flash_ms = ms;
+            }
+            let s = rift::snapshot()?;
+            let rects = geometry::container_rects(&s.layout, &s.windows, s.gaps);
+            render::flash(&rects, &cfg, s.screen)?;
         }
         Command::TestOverlay { secs } => test_overlay(secs)?,
     }
