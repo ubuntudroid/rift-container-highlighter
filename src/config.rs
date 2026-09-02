@@ -73,6 +73,12 @@ fn default_corner_radius() -> f64 { 22.0 }
 fn default_level_inset() -> f64 { 3.0 }
 fn default_dim_factor() -> f64 { 0.45 }
 
+/// Canonical theme names with a built-in palette. Used by the `themes`
+/// subcommand so `apply-theme.sh` can warn instead of duplicating this list.
+pub fn known_themes() -> impl Iterator<Item = &'static str> {
+    PALETTES.iter().map(|(name, _)| *name)
+}
+
 impl Config {
     pub fn load() -> Result<Config> {
         let path = config_path();

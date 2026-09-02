@@ -39,6 +39,8 @@ enum Command {
     },
     /// Clear any flash left on screen by killing other instances
     Reset,
+    /// List the theme names with a built-in palette, one per line
+    Themes,
     /// Draw one solid rectangle for a few seconds (checks the overlay plumbing)
     TestOverlay {
         /// How long to keep it on screen, in seconds
@@ -98,6 +100,11 @@ fn main() -> Result<()> {
             // anything the flash does.
             rift::execute_layout(layout)?;
             flash(ms)?;
+        }
+        Command::Themes => {
+            for t in config::known_themes() {
+                println!("{t}");
+            }
         }
         Command::Reset => {
             let n = cmd::reset()?;
