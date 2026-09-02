@@ -1,3 +1,4 @@
+mod cmd;
 mod config;
 mod geometry;
 mod render;
@@ -24,6 +25,20 @@ enum Command {
         #[arg(long)]
         ms: Option<u64>,
     },
+    /// Run a rift layout command, then flash. Bind this instead of the
+    /// built-in action.
+    Wrap {
+        /// ascend, descend, move-node, join-window, consume-or-expel-window,
+        /// toggle-stack, toggle-orientation, unjoin
+        layout_command: String,
+        /// left, right, up or down, for the commands that take one
+        direction: Option<String>,
+        /// Override the configured flash duration, in milliseconds
+        #[arg(long)]
+        ms: Option<u64>,
+    },
+    /// Clear any flash left on screen by killing other instances
+    Reset,
     /// Draw one solid rectangle for a few seconds (checks the overlay plumbing)
     TestOverlay {
         /// How long to keep it on screen, in seconds
@@ -62,7 +77,8 @@ fn main() -> Result<()> {
                 "config": {
                     "theme": cfg.theme,
                     "flash_ms": cfg.flash_ms,
-                    "stroke_width": cfg.stroke_width,
+                    "band_width": cfg.band_width,
+                    "outset": cfg.outset,
                     "corner_radius": cfg.corner_radius,
                     "level_inset": cfg.level_inset,
                     "dim_factor": cfg.dim_factor,
@@ -74,18 +90,32 @@ fn main() -> Result<()> {
             });
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        Command::Peek { ms } => {
-            let mut cfg = config::Config::load()?;
-            if let Some(ms) = ms {
-                cfg.flash_ms = ms;
-            }
-            let s = rift::snapshot()?;
-            let rects = geometry::container_rects(&s.layout, &s.windows, s.gaps);
-            render::flash(&rects, &cfg, s.screen)?;
+        Command::Peek { ms } => flash(ms)?,
+        Command::Wrap { layout_command, direction, ms } => {
+            let dir = direction.as_deref().map(cmd::parse_direction).transpose()?;
+            let layout = cmd::to_layout_command(&layout_command, dir)?;
+            // The rift command runs first: keypress latency must not depend on
+            // anything the flash does.
+            rift::execute_layout(layout)?;
+            flash(ms)?;
+        }
+        Command::Reset => {
+            let n = cmd::reset()?;
+            println!("cleared {n} flash process(es)");
         }
         Command::TestOverlay { secs } => test_overlay(secs)?,
     }
     Ok(())
+}
+
+fn flash(ms: Option<u64>) -> Result<()> {
+    let mut cfg = config::Config::load()?;
+    if let Some(ms) = ms {
+        cfg.flash_ms = ms;
+    }
+    let s = rift::snapshot()?;
+    let rects = geometry::container_rects(&s.layout, &s.windows, s.gaps);
+    render::flash(&rects, &cfg, s.screen)
 }
 
 /// Proves the vendored overlay plumbing works before any real drawing depends

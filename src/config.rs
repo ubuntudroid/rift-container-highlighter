@@ -31,8 +31,15 @@ pub struct Config {
 
     #[serde(default = "default_flash_ms")]
     pub flash_ms: u64,
-    #[serde(default = "default_stroke_width")]
-    pub stroke_width: f64,
+    /// Total width of the fading band, in points. The band starts opaque at
+    /// the container's outer edge and reaches fully transparent this far
+    /// inward, so it overlaps the member windows by roughly this much.
+    #[serde(default = "default_band_width")]
+    pub band_width: f64,
+    /// Extra outward growth beyond half the inner gap, so the band's outer
+    /// edge clears the member windows.
+    #[serde(default = "default_outset")]
+    pub outset: f64,
     #[serde(default = "default_corner_radius")]
     pub corner_radius: f64,
     /// Extra inset per nesting level, so concentric outlines stay separated.
@@ -56,8 +63,13 @@ pub struct GapsOverride {
 
 fn default_theme() -> String { FALLBACK_THEME.to_string() }
 fn default_flash_ms() -> u64 { 1500 }
-fn default_stroke_width() -> f64 { 2.0 }
-fn default_corner_radius() -> f64 { 8.0 }
+fn default_band_width() -> f64 { 36.0 }
+fn default_outset() -> f64 { 4.0 }
+// macOS 26 rounds window corners considerably more than earlier releases.
+// JankyBorders reads the real per-window value via SLSWindowIteratorGetCornerRadii
+// and falls back to 9; reading it would mean vendoring the window-iterator API,
+// so this is a tunable default instead.
+fn default_corner_radius() -> f64 { 22.0 }
 fn default_level_inset() -> f64 { 3.0 }
 fn default_dim_factor() -> f64 { 0.45 }
 
@@ -141,7 +153,7 @@ mod tests {
         let c = Config::from_str("").unwrap();
         assert_eq!(c.flash_ms, 1500);
         assert_eq!(c.theme, "tokyo-night");
-        assert!(c.stroke_width > 0.0);
+        assert!(c.band_width > 0.0);
         assert!(c.palette.is_none());
     }
 
@@ -216,5 +228,8 @@ mod tests {
     fn an_unknown_key_is_rejected() {
         // A typo'd key must not be silently ignored.
         assert!(Config::from_str("flsah_ms = 100").is_err());
+        // stroke_width was replaced by band_width; the old key must not pass
+        // silently.
+        assert!(Config::from_str("stroke_width = 2.0").is_err());
     }
 }

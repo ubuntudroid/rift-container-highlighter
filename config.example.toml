@@ -31,11 +31,23 @@ theme = "tokyo-night"
 # How long the outlines stay on screen, in milliseconds.
 flash_ms = 1500
 
-# Outline stroke width in points.
-stroke_width = 2.0
+# Total width of the fading band, in points. The band is opaque at the
+# container's outer edge and fully transparent this far inward, so it overlaps
+# the member windows by roughly this much.
+band_width = 36.0
 
-# Corner radius of the outlines, in points.
-corner_radius = 8.0
+# Extra outward growth beyond half the inner gap, so the band's outer edge
+# clears the member windows before it starts fading inward.
+outset = 4.0
+
+# Corner radius of the band, in points.
+#
+# macOS 26 rounds window corners considerably more than earlier releases.
+# JankyBorders reads the real per-window value via SLSWindowIteratorGetCornerRadii
+# (falling back to 9); reading it here would mean vendoring the window-iterator
+# API, so this is a tunable default. Raise or lower it until the band's corners
+# sit concentric with your window corners.
+corner_radius = 22.0
 
 # Extra inset applied per nesting level, so concentric outlines stay visibly
 # separated instead of sitting on top of each other.

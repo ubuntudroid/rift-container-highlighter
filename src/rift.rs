@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use rift_client::RiftMachClient;
-use rift_protocol::{LayoutStateData, Point, Rect, Size, WindowData};
+use rift_protocol::{
+    LayoutCommand, LayoutStateData, Point, Rect, RiftCommand, Size, WindowData,
+};
 
 /// Inner gaps only. The outer gap sits between the outermost windows and the
 /// screen edge, which is outside every container rect we draw, so it plays no
@@ -29,6 +31,17 @@ pub fn snapshot() -> Result<Snapshot> {
     let gaps = read_gaps(&client).unwrap_or_default();
     let screen = screen_for_space(&client, layout.space_id)?;
     Ok(Snapshot { layout, windows, gaps, screen })
+}
+
+/// Run a layout command in rift. Called before flashing so the outlines show
+/// the layout the command produced, and so keypress latency is unaffected by
+/// anything the flash does.
+pub fn execute_layout(cmd: LayoutCommand) -> Result<()> {
+    let client = RiftMachClient::connect().context("rift is not running")?;
+    client
+        .execute(RiftCommand::Layout(cmd))
+        .context("executing the layout command failed")?;
+    Ok(())
 }
 
 /// The display whose active space is the one we queried. Falls back to the

@@ -29,7 +29,9 @@ pub fn flash(rects: &[ContainerRect], cfg: &Config, screen: Rect) -> Result<()> 
         root.setFrame(CGRect::new(CGPoint::new(0.0, 0.0), frame.size));
         // Outermost first, so deeper rects are added later and composite on top.
         for r in rects {
-            root.addSublayer(&outline_layer(r, cfg, screen));
+            for layer in band_layers(r, cfg, screen) {
+                root.addSublayer(&layer);
+            }
         }
     });
 
@@ -54,33 +56,57 @@ pub fn flash(rects: &[ContainerRect], cfg: &Config, screen: Rect) -> Result<()> 
     Ok(())
 }
 
-/// A transparent layer with a coloured border is a rounded outline — no
-/// `CAShapeLayer` or `CGPath` needed.
-fn outline_layer(r: &ContainerRect, cfg: &Config, screen: Rect) -> Retained<CALayer> {
-    let layer = CALayer::layer();
+/// A band that starts opaque at the container's outer edge and fades to fully
+/// transparent `band_width` points inward, overlapping the member windows.
+///
+/// Built as a stack of 1pt concentric rounded-rect rings with a linear alpha
+/// ramp, because a CALayer border is already a rounded outline and needs no
+/// CAShapeLayer, CGPath or mask. The ceiling: one sublayer per point of band
+/// width (36 by default) per container, and banding would show if the step
+/// grew above 1pt. If either becomes a problem, draw a CGImage with a real
+/// per-pixel ramp and set it as the layer's contents.
+fn band_layers(r: &ContainerRect, cfg: &Config, screen: Rect) -> Vec<Retained<CALayer>> {
+    // Each nesting level steps further in so concentric bands stay
+    // distinguishable rather than sitting on top of one another.
+    let level = cfg.level_inset * (r.depth.saturating_sub(1)) as f64;
+    let grow = cfg.outset - level;
 
-    // Each level steps further in so concentric outlines stay distinguishable
-    // rather than sitting on top of one another.
-    let inset = cfg.level_inset * (r.depth.saturating_sub(1)) as f64;
-    let local = CGRect::new(
+    let outer = CGRect::new(
         CGPoint::new(
-            r.rect.origin.x - screen.origin.x + inset,
-            r.rect.origin.y - screen.origin.y + inset,
+            r.rect.origin.x - screen.origin.x - grow,
+            r.rect.origin.y - screen.origin.y - grow,
         ),
         CGSize::new(
-            (r.rect.size.width - 2.0 * inset).max(0.0),
-            (r.rect.size.height - 2.0 * inset).max(0.0),
+            (r.rect.size.width + 2.0 * grow).max(0.0),
+            (r.rect.size.height + 2.0 * grow).max(0.0),
         ),
     );
 
     let dim = if r.selected { 1.0 } else { cfg.dim_factor };
-    let color = cg_color(cfg.color_for_depth(r.depth), dim);
+    let argb = cfg.color_for_depth(r.depth);
+    let steps = cfg.band_width.max(1.0).round() as usize;
 
-    layer.setFrame(local);
-    layer.setBorderWidth(cfg.stroke_width);
-    layer.setBorderColor(Some(&color));
-    layer.setCornerRadius(cfg.corner_radius);
-    layer
+    let mut layers = Vec::with_capacity(steps);
+    for i in 0..steps {
+        let inset = i as f64;
+        let w = outer.size.width - 2.0 * inset;
+        let h = outer.size.height - 2.0 * inset;
+        if w <= 0.0 || h <= 0.0 {
+            break;
+        }
+        // Opaque at the outer edge, zero at band_width inward.
+        let ramp = 1.0 - (inset / steps as f64);
+        let layer = CALayer::layer();
+        layer.setFrame(CGRect::new(
+            CGPoint::new(outer.origin.x + inset, outer.origin.y + inset),
+            CGSize::new(w, h),
+        ));
+        layer.setBorderWidth(1.0);
+        layer.setBorderColor(Some(&cg_color(argb, dim * ramp)));
+        layer.setCornerRadius((cfg.corner_radius - inset).max(0.0));
+        layers.push(layer);
+    }
+    layers
 }
 
 fn to_cg(r: Rect) -> CGRect {
