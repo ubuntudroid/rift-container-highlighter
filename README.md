@@ -56,24 +56,33 @@ discards the overlay when the process ends, which is also why `reset` is just a 
 
 ## Keybindings
 
-rift keybindings fire on key-down only — there is no release action — so hold-to-peek is not
-possible. Bind `wrap` in place of the built-in actions:
+Three bindings are enough. Nothing needs to be rebound:
 
 ```toml
 # ~/.config/rift/config.toml
-"Alt + P"         = { exec = "rift-container-highlighter peek" }
-"Alt + A"         = { exec = "rift-container-highlighter wrap ascend" }
-"Alt + D"         = { exec = "rift-container-highlighter wrap descend" }
-"Alt + Slash"     = { exec = "rift-container-highlighter wrap toggle-orientation" }
-"Alt + Comma"     = { exec = "rift-container-highlighter wrap toggle-stack" }
-"Alt + Ctrl + E"  = { exec = "rift-container-highlighter wrap unjoin" }
-"Alt + Shift + Y" = { exec = "rift-container-highlighter wrap join-window left" }
-"Alt + Shift + O" = { exec = "rift-container-highlighter wrap join-window right" }
-"Alt + Shift + U" = { exec = "rift-container-highlighter wrap join-window up" }
-"Alt + Shift + I" = { exec = "rift-container-highlighter wrap join-window down" }
+"Alt + Backslash"    = { exec = "/path/to/rift-container-highlighter peek" }
+"Alt + BracketLeft"  = { exec = "/path/to/rift-container-highlighter wrap ascend" }
+"Alt + BracketRight" = { exec = "/path/to/rift-container-highlighter wrap descend" }
 ```
 
-Use the binary's absolute path if rift does not inherit your `PATH`.
+Use an **absolute path**: rift runs as a launchd agent with no `PATH`, so a bare binary name
+silently does nothing.
+
+`ascend` and `descend` are wrapped because they are the only structural commands that emit no
+event — nothing outside the keybinding can notice a selection change. Everything else
+(`join_window`, `move_node`, `toggle_orientation`, `unjoin`) already fires `layout_changed`, so if
+you want those to flash automatically, subscribe instead of rebinding:
+
+```sh
+rift-cli subscribe cli --event layout_changed \
+  --command /path/to/rift-container-highlighter --args peek
+```
+
+That fires on divider drags and on windows opening and closing too, so it flashes more than most
+people want. Suppressing that needs a structure hash cached between runs, which this does not do.
+
+rift keybindings fire on key-down only — there is no release action — so hold-to-peek is not
+possible. `peek` is a timed flash.
 
 ## Configuration
 
