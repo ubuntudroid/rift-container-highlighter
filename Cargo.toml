@@ -1,0 +1,31 @@
+[package]
+name = "rift-container-highlighter"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Flash container outlines for the rift window manager"
+repository = "https://github.com/ubuntudroid/rift-container-highlighter"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.9"
+once_cell = "1"
+libc = "0.2"
+
+# Pinned to 0.3.2 to match the objc2 versions rift itself builds against at the
+# vendored revision, so the vendored FFI compiles as written. Default features
+# are left on: rift trims them hard for build size and does not even list
+# CALayer or CGContext, which the vendored code needs.
+objc2-core-foundation = "0.3.2"
+objc2-core-graphics = "0.3.2"
+objc2-quartz-core = "0.3.2"
+
+# NEVER `cargo add rift-client` / `rift-protocol`. Those crates.io names belong
+# to unrelated third parties (lazhenyi/rift-proto and infinityabundance/riftd);
+# acsandmann publishes neither. Git rev only, re-pinned on rift upgrades along
+# with the files in src/vendor/.
+rift-client = { git = "https://github.com/acsandmann/rift", rev = "b67cf2efc447174ca9e0cd10f558a224ed32b038" }
+rift-protocol = { git = "https://github.com/acsandmann/rift", rev = "b67cf2efc447174ca9e0cd10f558a224ed32b038" }

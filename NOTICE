@@ -1,0 +1,19 @@
+rift-container-highlighter
+Copyright 2026 ubuntudroid
+
+This product includes software developed by the rift project
+(https://github.com/acsandmann/rift), licensed under the Apache License 2.0.
+Portions of rift are copyright tmandry, 2025, as part of glide-wm; all other
+copyright in rift is held by acsandmann, 2025.
+
+The following files are derived from rift and retain their original copyright
+and licence headers:
+
+  src/vendor/cgs_window.rs    from rift src/sys/cgs_window.rs
+  src/vendor/render_layer.rs  from rift src/ui/common.rs
+  src/vendor/skylight.rs      from rift src/sys/skylight.rs and src/sys.rs
+
+Upstream revision: b67cf2efc447174ca9e0cd10f558a224ed32b038 (tag v0.5.5)
+
+Vendoring is the upstream-endorsed way to consume these bindings; see
+https://github.com/acsandmann/rift/issues/467.
