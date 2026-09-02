@@ -1,0 +1,54 @@
+# rift-container-highlighter
+#
+# Copy to ~/.config/rift-container-highlighter/config.toml. Every key is
+# optional; the values below are the defaults. The file is re-read on every
+# invocation, so changes take effect on the next flash — nothing to reload.
+
+# Canonical theme name. Selects a built-in palette.
+#
+# This line is written by ~/.config/apply-theme.sh; you normally do not edit it
+# by hand. Built-in palettes: tokyo-night, catppuccin-mocha, rose-pine. An
+# unknown name falls back to tokyo-night.
+theme = "tokyo-night"
+
+# Explicit colours, overriding the theme palette. `#rrggbb` (opaque) or
+# `#aarrggbb`. Colours are assigned by nesting depth, outermost first, and wrap
+# when a layout nests deeper than the palette.
+#
+# A malformed colour is an error rather than a silent fallback. Setting this
+# also opts out of theme switching — apply-theme.sh will keep rewriting
+# `theme`, but `palette` continues to win.
+#
+# The built-in tokyo-night palette, for reference:
+#   blue #7aa2f7, green #9ece6a, yellow #e0af68, magenta #bb9af7, cyan #7dcfff
+#
+# Red (#f7768e) is deliberately absent: in this setup it means failing CI and
+# requested changes, and a container outline should not read as an error. Add it
+# here if you disagree.
+#
+# palette = ["#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7", "#7dcfff"]
+
+# How long the outlines stay on screen, in milliseconds.
+flash_ms = 1500
+
+# Outline stroke width in points.
+stroke_width = 2.0
+
+# Corner radius of the outlines, in points.
+corner_radius = 8.0
+
+# Extra inset applied per nesting level, so concentric outlines stay visibly
+# separated instead of sitting on top of each other.
+level_inset = 3.0
+
+# Alpha multiplier for containers that do NOT hold the layout selection. The
+# selected container always draws at full opacity. 1.0 disables dimming.
+dim_factor = 0.45
+
+# Gaps are read from rift's own config over IPC
+# (settings.layout.gaps.inner.{horizontal,vertical}). Uncomment to override,
+# e.g. if you want outlines to hug window edges regardless of your gaps.
+#
+# [gaps]
+# inner_h = 8.0
+# inner_v = 8.0
