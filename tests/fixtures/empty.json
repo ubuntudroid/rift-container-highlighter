@@ -1,0 +1,29 @@
+{
+  "gaps": {
+    "inner_h": 8.0,
+    "inner_v": 8.0
+  },
+  "layout": {
+    "container_tree": {
+      "children": [],
+      "is_fullscreen": false,
+      "is_fullscreen_within_gaps": false,
+      "is_selected": true,
+      "layout_kind": "horizontal",
+      "node_type": "container",
+      "pending_split": null,
+      "role": null,
+      "weight": null,
+      "window_id": null
+    },
+    "floating_windows": [],
+    "focused_window": null,
+    "is_active_workspace": true,
+    "mode": "traditional",
+    "selected_window": null,
+    "space_id": 1,
+    "tiled_windows": [],
+    "workspace_id": 2
+  },
+  "windows": []
+}

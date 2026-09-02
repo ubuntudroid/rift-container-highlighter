@@ -1,0 +1,164 @@
+{
+  "gaps": {
+    "inner_h": 8.0,
+    "inner_v": 8.0
+  },
+  "layout": {
+    "container_tree": {
+      "children": [
+        {
+          "children": [],
+          "is_fullscreen": false,
+          "is_fullscreen_within_gaps": false,
+          "is_selected": false,
+          "layout_kind": null,
+          "node_type": "window",
+          "pending_split": null,
+          "role": null,
+          "weight": 1.0,
+          "window_id": {
+            "idx": 18689,
+            "pid": 4566
+          }
+        },
+        {
+          "children": [],
+          "is_fullscreen": false,
+          "is_fullscreen_within_gaps": false,
+          "is_selected": true,
+          "layout_kind": null,
+          "node_type": "window",
+          "pending_split": null,
+          "role": null,
+          "weight": 1.0,
+          "window_id": {
+            "idx": 18691,
+            "pid": 4566
+          }
+        },
+        {
+          "children": [],
+          "is_fullscreen": false,
+          "is_fullscreen_within_gaps": false,
+          "is_selected": false,
+          "layout_kind": null,
+          "node_type": "window",
+          "pending_split": null,
+          "role": null,
+          "weight": 1.0,
+          "window_id": {
+            "idx": 18693,
+            "pid": 4566
+          }
+        }
+      ],
+      "is_fullscreen": false,
+      "is_fullscreen_within_gaps": false,
+      "is_selected": false,
+      "layout_kind": "horizontal",
+      "node_type": "container",
+      "pending_split": null,
+      "role": null,
+      "weight": null,
+      "window_id": null
+    },
+    "floating_windows": [],
+    "focused_window": {
+      "idx": 18691,
+      "pid": 4566
+    },
+    "is_active_workspace": true,
+    "mode": "traditional",
+    "selected_window": {
+      "idx": 18691,
+      "pid": 4566
+    },
+    "space_id": 1,
+    "tiled_windows": [
+      {
+        "idx": 18689,
+        "pid": 4566
+      },
+      {
+        "idx": 18691,
+        "pid": 4566
+      },
+      {
+        "idx": 18693,
+        "pid": 4566
+      }
+    ],
+    "workspace_id": 2
+  },
+  "windows": [
+    {
+      "app_name": "Finder",
+      "bundle_id": "com.apple.finder",
+      "frame": {
+        "origin": {
+          "x": 25.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 831.0
+        }
+      },
+      "id": {
+        "idx": 18689,
+        "pid": 4566
+      },
+      "is_floating": false,
+      "is_focused": false,
+      "layout_position": null,
+      "title": "Recents",
+      "window_server_id": 18689
+    },
+    {
+      "app_name": "Finder",
+      "bundle_id": "com.apple.finder",
+      "frame": {
+        "origin": {
+          "x": 864.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 832.0
+        }
+      },
+      "id": {
+        "idx": 18691,
+        "pid": 4566
+      },
+      "is_floating": false,
+      "is_focused": true,
+      "layout_position": null,
+      "title": "Recents",
+      "window_server_id": 18691
+    },
+    {
+      "app_name": "Finder",
+      "bundle_id": "com.apple.finder",
+      "frame": {
+        "origin": {
+          "x": 1704.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 831.0
+        }
+      },
+      "id": {
+        "idx": 18693,
+        "pid": 4566
+      },
+      "is_floating": false,
+      "is_focused": false,
+      "layout_position": null,
+      "title": "Recents",
+      "window_server_id": 18693
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "gaps": {
+    "inner_h": 8.0,
+    "inner_v": 8.0
+  },
+  "layout": {
+    "container_tree": {
+      "children": [
+        {
+          "children": [],
+          "is_fullscreen": false,
+          "is_fullscreen_within_gaps": false,
+          "is_selected": true,
+          "layout_kind": null,
+          "node_type": "window",
+          "pending_split": null,
+          "role": null,
+          "weight": 1.0,
+          "window_id": {
+            "idx": 819,
+            "pid": 4508
+          }
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "is_fullscreen": false,
+              "is_fullscreen_within_gaps": false,
+              "is_selected": false,
+              "layout_kind": null,
+              "node_type": "window",
+              "pending_split": null,
+              "role": null,
+              "weight": 1.0,
+              "window_id": {
+                "idx": 18649,
+                "pid": 4508
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "is_fullscreen": false,
+                  "is_fullscreen_within_gaps": false,
+                  "is_selected": false,
+                  "layout_kind": null,
+                  "node_type": "window",
+                  "pending_split": null,
+                  "role": null,
+                  "weight": 1.0,
+                  "window_id": {
+                    "idx": 18666,
+                    "pid": 4508
+                  }
+                },
+                {
+                  "children": [],
+                  "is_fullscreen": false,
+                  "is_fullscreen_within_gaps": false,
+                  "is_selected": false,
+                  "layout_kind": null,
+                  "node_type": "window",
+                  "pending_split": null,
+                  "role": null,
+                  "weight": 1.0,
+                  "window_id": {
+                    "idx": 15284,
+                    "pid": 75266
+                  }
+                }
+              ],
+              "is_fullscreen": false,
+              "is_fullscreen_within_gaps": false,
+              "is_selected": false,
+              "layout_kind": "horizontal",
+              "node_type": "container",
+              "pending_split": null,
+              "role": null,
+              "weight": 2.0,
+              "window_id": null
+            }
+          ],
+          "is_fullscreen": false,
+          "is_fullscreen_within_gaps": false,
+          "is_selected": false,
+          "layout_kind": "vertical",
+          "node_type": "container",
+          "pending_split": null,
+          "role": null,
+          "weight": 2.0,
+          "window_id": null
+        }
+      ],
+      "is_fullscreen": false,
+      "is_fullscreen_within_gaps": false,
+      "is_selected": false,
+      "layout_kind": "horizontal",
+      "node_type": "container",
+      "pending_split": null,
+      "role": null,
+      "weight": null,
+      "window_id": null
+    },
+    "floating_windows": [],
+    "focused_window": {
+      "idx": 819,
+      "pid": 4508
+    },
+    "is_active_workspace": true,
+    "mode": "traditional",
+    "selected_window": {
+      "idx": 819,
+      "pid": 4508
+    },
+    "space_id": 1,
+    "tiled_windows": [
+      {
+        "idx": 819,
+        "pid": 4508
+      },
+      {
+        "idx": 18649,
+        "pid": 4508
+      },
+      {
+        "idx": 18666,
+        "pid": 4508
+      },
+      {
+        "idx": 15284,
+        "pid": 75266
+      }
+    ],
+    "workspace_id": 1
+  },
+  "windows": [
+    {
+      "app_name": "Ghostty",
+      "bundle_id": "com.mitchellh.ghostty",
+      "frame": {
+        "origin": {
+          "x": 25.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 834.0
+        }
+      },
+      "id": {
+        "idx": 819,
+        "pid": 4508
+      },
+      "is_floating": false,
+      "is_focused": true,
+      "layout_position": null,
+      "title": "Window A",
+      "window_server_id": 819
+    },
+    {
+      "app_name": "Ghostty",
+      "bundle_id": "com.mitchellh.ghostty",
+      "frame": {
+        "origin": {
+          "x": 867.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 450.0,
+          "width": 1668.0
+        }
+      },
+      "id": {
+        "idx": 18649,
+        "pid": 4508
+      },
+      "is_floating": false,
+      "is_focused": false,
+      "layout_position": null,
+      "title": "~",
+      "window_server_id": 18649
+    },
+    {
+      "app_name": "Ghostty",
+      "bundle_id": "com.mitchellh.ghostty",
+      "frame": {
+        "origin": {
+          "x": 867.0,
+          "y": 514.0
+        },
+        "size": {
+          "height": 901.0,
+          "width": 830.0
+        }
+      },
+      "id": {
+        "idx": 18666,
+        "pid": 4508
+      },
+      "is_floating": false,
+      "is_focused": false,
+      "layout_position": null,
+      "title": "~",
+      "window_server_id": 18666
+    },
+    {
+      "app_name": "Slack",
+      "bundle_id": "com.tinyspeck.slackmacgap",
+      "frame": {
+        "origin": {
+          "x": 1705.0,
+          "y": 514.0
+        },
+        "size": {
+          "height": 901.0,
+          "width": 830.0
+        }
+      },
+      "id": {
+        "idx": 15284,
+        "pid": 75266
+      },
+      "is_floating": false,
+      "is_focused": false,
+      "layout_position": null,
+      "title": "Window D",
+      "window_server_id": 15284
+    }
+  ]
+}
