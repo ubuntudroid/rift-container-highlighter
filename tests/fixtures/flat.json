@@ -111,7 +111,7 @@
       "is_floating": false,
       "is_focused": false,
       "layout_position": null,
-      "title": "Recents",
+      "title": "Window A",
       "window_server_id": 18689
     },
     {
@@ -134,7 +134,7 @@
       "is_floating": false,
       "is_focused": true,
       "layout_position": null,
-      "title": "Recents",
+      "title": "Window B",
       "window_server_id": 18691
     },
     {
@@ -157,7 +157,7 @@
       "is_floating": false,
       "is_focused": false,
       "layout_position": null,
-      "title": "Recents",
+      "title": "Window C",
       "window_server_id": 18693
     }
   ]
