@@ -3,6 +3,12 @@
 Flashes an outline around every container in the active [rift](https://github.com/acsandmann/rift)
 workspace, so you can see the container tree before running a command that acts on it.
 
+![Container outlines flashing as the selection walks up and down the tree](assets/demo.gif)
+
+Four terminals in two nesting levels. Each `ascend` (`⌥[`) walks the selection one level out and
+flashes what it now points at: the inner container in green, then the whole workspace in cyan when
+the selection reaches root. `descend` (`⌥]`) walks back in.
+
 In rift's `traditional` and `bsp` layouts the tree is invisible. Two windows side by side look
 identical whether they are siblings in the root container or a nested sub-container next to a third
 window — which makes `move_node`, `join_window`, `unjoin_windows`, `toggle_orientation` and
