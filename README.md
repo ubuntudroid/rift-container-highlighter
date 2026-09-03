@@ -67,16 +67,20 @@ Three bindings are enough. Nothing needs to be rebound:
 
 ```toml
 # ~/.config/rift/config.toml
-"Alt + Shift + Backslash"    = { exec = "/path/to/rift-container-highlighter peek" }
-"Alt + Shift + BracketLeft"  = { exec = "/path/to/rift-container-highlighter wrap ascend" }
-"Alt + Shift + BracketRight" = { exec = "/path/to/rift-container-highlighter wrap descend" }
+"Alt + Backslash"    = { exec = "/path/to/rift-container-highlighter peek" }
+"Alt + BracketLeft"  = { exec = "/path/to/rift-container-highlighter wrap ascend" }
+"Alt + BracketRight" = { exec = "/path/to/rift-container-highlighter wrap descend" }
 ```
+
+None of the three modifies the tree, so they belong with your focus bindings rather than with the
+ones that move windows.
 
 Use an **absolute path**: rift runs as a launchd agent with no `PATH`, so a bare binary name
 silently does nothing.
 
-Punctuation keys are worth preferring here — `Alt + P` is Claude Code's model switcher and
-`Alt + D` is zsh's `kill-word`, and a rift hotkey swallows the key before the terminal sees it.
+Punctuation keys are worth preferring here. A rift hotkey swallows the key before the terminal sees
+it, so a letter is easy to lose to something else: `Alt + P` is Claude Code's model switcher and
+`Alt + D` is zsh's `kill-word`.
 
 `ascend` and `descend` are wrapped because they are the only structural commands that emit no
 event — nothing outside the keybinding can notice a selection change. Everything else
