@@ -4,15 +4,20 @@ use serde::Deserialize;
 /// Built-in palettes, keyed by the canonical theme name that
 /// `~/.config/apply-theme.sh` writes into our config.
 ///
-/// Five colours per theme, in depth order: blue, green, yellow, magenta, cyan.
+/// Five colours per theme, indexed by depth **starting at root**: slot 0 is the
+/// root container, slot 1 the first level below it, and so on. Root gets its own
+/// colour rather than sharing with depth 1 — it is drawn only when selected, and
+/// two identical bands nested inside each other read as a mistake.
+///
 /// Red is deliberately absent — in this setup it carries "failing CI / changes
 /// requested" everywhere else on screen, and a container outline must not read
 /// as an error.
 const PALETTES: &[(&str, &[&str])] = &[
-    // folke Tokyo Night "Night", matching ~/.config/gh-dash/config.yml
-    ("tokyo-night", &["#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7", "#7dcfff"]),
-    ("catppuccin-mocha", &["#89b4fa", "#a6e3a1", "#f9e2af", "#cba6f7", "#89dceb"]),
-    ("rose-pine", &["#31748f", "#9ccfd8", "#f6c177", "#c4a7e7", "#ebbcba"]),
+    // folke Tokyo Night "Night", matching ~/.config/gh-dash/config.yml.
+    // cyan (root), blue, green, yellow, magenta.
+    ("tokyo-night", &["#7dcfff", "#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7"]),
+    ("catppuccin-mocha", &["#89dceb", "#89b4fa", "#a6e3a1", "#f9e2af", "#cba6f7"]),
+    ("rose-pine", &["#9ccfd8", "#31748f", "#f6c177", "#c4a7e7", "#ebbcba"]),
 ];
 
 const FALLBACK_THEME: &str = "tokyo-night";
@@ -136,14 +141,13 @@ impl Config {
         (self.band_width * self.band_decay.powi(level)).max(4.0)
     }
 
-    /// Colour for a container at `depth` (1-based, except root at 0, which is
-    /// drawn only when it holds the selection).
-    /// Wraps when nesting runs deeper than the palette.
+    /// Colour for a container at `depth`, indexed straight from the palette so
+    /// root (0) and the first level below it (1) never collide. Wraps when
+    /// nesting runs deeper than the palette.
     pub fn color_for_depth(&self, depth: usize) -> u32 {
         let cs = self.colors();
         debug_assert!(!cs.is_empty(), "colors() must never be empty");
-        let i = depth.saturating_sub(1) % cs.len();
-        cs[i]
+        cs[depth % cs.len()]
     }
 }
 
@@ -183,9 +187,20 @@ mod tests {
     #[test]
     fn tokyo_night_palette_matches_the_setup() {
         let c = Config::from_str("").unwrap();
-        // #7aa2f7 is the blue used by gh-dash's `actor` slot.
-        assert_eq!(c.colors()[0], 0xff7a_a2f7);
+        // #7aa2f7 is the blue used by gh-dash's `actor` slot, and it belongs to
+        // the first level below root — the one usually on screen.
+        assert_eq!(c.color_for_depth(1), 0xff7a_a2f7);
         assert_eq!(c.colors().len(), 5);
+    }
+
+    #[test]
+    fn root_and_first_level_never_share_a_colour() {
+        // They nest inside each other whenever root is selected, so identical
+        // bands would read as a rendering mistake.
+        for name in known_themes() {
+            let c = Config::from_str(&format!("theme = {name:?}")).unwrap();
+            assert_ne!(c.color_for_depth(0), c.color_for_depth(1), "{name}");
+        }
     }
 
     #[test]
@@ -260,9 +275,10 @@ mod tests {
     #[test]
     fn depth_wraps_around_the_palette() {
         let c = Config::from_str(r##"palette = ["#000001", "#000002"]"##).unwrap();
-        assert_eq!(c.color_for_depth(1), 0xff00_0001);
-        assert_eq!(c.color_for_depth(2), 0xff00_0002);
-        assert_eq!(c.color_for_depth(3), 0xff00_0001);
+        assert_eq!(c.color_for_depth(0), 0xff00_0001, "root takes slot 0");
+        assert_eq!(c.color_for_depth(1), 0xff00_0002);
+        assert_eq!(c.color_for_depth(2), 0xff00_0001, "wraps");
+        assert_eq!(c.color_for_depth(3), 0xff00_0002);
     }
 
     #[test]

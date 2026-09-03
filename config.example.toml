@@ -12,21 +12,26 @@
 theme = "tokyo-night"
 
 # Explicit colours, overriding the theme palette. `#rrggbb` (opaque) or
-# `#aarrggbb`. Colours are assigned by nesting depth, outermost first, and wrap
-# when a layout nests deeper than the palette.
+# `#aarrggbb`.
+#
+# Indexed by nesting depth starting at root: slot 0 is the root container, slot
+# 1 the first level below it, and so on, wrapping when a layout nests deeper
+# than the palette. Root has its own slot on purpose — it is drawn only when
+# selected, and a band identical to the one nested inside it reads as a bug.
 #
 # A malformed colour is an error rather than a silent fallback. Setting this
 # also opts out of theme switching — apply-theme.sh will keep rewriting
 # `theme`, but `palette` continues to win.
 #
 # The built-in tokyo-night palette, for reference:
-#   blue #7aa2f7, green #9ece6a, yellow #e0af68, magenta #bb9af7, cyan #7dcfff
+#   root #7dcfff cyan, then #7aa2f7 blue, #9ece6a green, #e0af68 yellow,
+#   #bb9af7 magenta
 #
 # Red (#f7768e) is deliberately absent: in this setup it means failing CI and
 # requested changes, and a container outline should not read as an error. Add it
 # here if you disagree.
 #
-# palette = ["#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7", "#7dcfff"]
+# palette = ["#7dcfff", "#7aa2f7", "#9ece6a", "#e0af68", "#bb9af7"]
 
 # How long the outlines stay on screen, in milliseconds.
 flash_ms = 1500
