@@ -99,19 +99,34 @@ fn band_layers(r: &ContainerRect, cfg: &Config, screen: Rect) -> Vec<Retained<CA
         if w <= 0.0 || h <= 0.0 {
             break;
         }
-        // Opaque at the outer edge, zero at band_width inward.
-        let ramp = 1.0 - (inset / steps as f64);
+        // Opaque at the outer edge, zero at band_width inward. Rings are 2pt
+        // wide on a 1pt step, so consecutive rings overlap and no antialiasing
+        // seam shows between them — most visible on the corner arcs, where
+        // adjacent 1pt strokes do not tile. Each pixel is therefore covered
+        // twice, so the per-ring alpha is halved to keep the ramp's shape.
+        let ramp = (1.0 - (inset / steps as f64)) * 0.5;
         let layer = CALayer::layer();
         layer.setFrame(CGRect::new(
             CGPoint::new(outer.origin.x + inset, outer.origin.y + inset),
             CGSize::new(w, h),
         ));
-        layer.setBorderWidth(1.0);
+        layer.setBorderWidth(2.0);
         layer.setBorderColor(Some(&cg_color(argb, dim * ramp)));
-        layer.setCornerRadius((cfg.corner_radius - inset).max(0.0));
+        // Concentric insets would take the radius to zero partway through the
+        // band, turning inner rings square inside rounded outer ones — a
+        // visible corner artefact whenever band_width exceeds corner_radius.
+        // Floored so every ring stays rounded.
+        layer.setCornerRadius(ring_radius(cfg.corner_radius, inset));
         layers.push(layer);
     }
     layers
+}
+
+/// Geometrically a rounded rect inset by more than its radius has square
+/// corners, but that transition is ugly mid-band, so the radius is floored at a
+/// quarter of the original.
+fn ring_radius(corner_radius: f64, inset: f64) -> f64 {
+    (corner_radius - inset).max(corner_radius * 0.25)
 }
 
 fn to_cg(r: Rect) -> CGRect {
@@ -134,6 +149,16 @@ fn cg_color(argb: u32, dim: f64) -> CFRetained<CGColor> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ring_radius_shrinks_but_never_squares_off() {
+        assert_eq!(ring_radius(22.0, 0.0), 22.0);
+        assert_eq!(ring_radius(22.0, 10.0), 12.0);
+        // Past the radius the naive value would be 0 and the corner would go
+        // square inside still-rounded outer rings.
+        assert_eq!(ring_radius(22.0, 30.0), 5.5);
+        assert_eq!(ring_radius(22.0, 1000.0), 5.5);
+    }
 
     #[test]
     fn argb_unpacks_and_dims() {
