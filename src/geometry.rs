@@ -114,16 +114,15 @@ fn outset(r: Rect, dx: f64, dy: f64) -> Rect {
     }
 }
 
-/// True when this node is the layout engine's selection, or is the immediate
-/// parent of the selected window. Only the innermost match is flagged, so at
-/// most one rect comes back selected. When the selection is a direct child of
-/// root, no non-root container matches — root itself is handled separately.
+/// True only when this node *is* the layout engine's selection.
+///
+/// Deliberately not "or contains the selected window": the bright band means
+/// "what the next structural command will act on", and with a window selected
+/// that is the window, not any container. Conflating the two also made the
+/// first `ascend` invisible — selecting a window and selecting its parent
+/// container rendered identically, so the press looked like a no-op.
 fn holds_selection(node: &ContainerTreeNode) -> bool {
     node.is_selected
-        || node
-            .children
-            .iter()
-            .any(|c| c.node_type == ContainerNodeType::Window && c.is_selected)
 }
 
 #[cfg(test)]
@@ -185,12 +184,57 @@ mod tests {
     }
 
     #[test]
-    fn exactly_the_innermost_container_is_selected_when_the_selection_is_nested() {
+    fn a_selected_window_brightens_no_container() {
+        // The fixture has a window selected, deep inside the tree. Nothing may
+        // be bright: the next structural command acts on that window, not on a
+        // container. If its parent were brightened, the first ascend would
+        // render identically to this and look like a no-op.
         let (l, w, g) = load("nested3_selected");
         let rects = container_rects(&l, &w, g);
-        let selected: Vec<_> = rects.iter().filter(|r| r.selected).collect();
+        assert!(rects.iter().all(|r| !r.selected));
+    }
+
+    #[test]
+    fn ascending_from_a_window_changes_what_is_bright() {
+        let (mut l, w, g) = load("nested3_selected");
+        let before = container_rects(&l, &w, g);
+
+        // Simulate one ascend: the selection moves from the window to its
+        // parent container, the innermost one at depth 2.
+        clear_selection(&mut l.container_tree);
+        select_deepest_container(&mut l.container_tree);
+        let after = container_rects(&l, &w, g);
+
+        assert_ne!(
+            before.iter().map(|r| r.selected).collect::<Vec<_>>(),
+            after.iter().map(|r| r.selected).collect::<Vec<_>>(),
+            "one ascend must be visible"
+        );
+        let selected: Vec<_> = after.iter().filter(|r| r.selected).collect();
         assert_eq!(selected.len(), 1);
-        assert_eq!(selected[0].depth, 2, "the innermost container, not an ancestor");
+        assert_eq!(selected[0].depth, 2, "the container the window sat in");
+    }
+
+    /// Two passes: find the deepest container's depth, then flag the first
+    /// container at that depth. Avoids holding a mutable borrow across a
+    /// traversal.
+    fn select_deepest_container(n: &mut ContainerTreeNode) {
+        fn max_depth(n: &ContainerTreeNode, d: usize) -> usize {
+            let here = if n.node_type == ContainerNodeType::Container { d } else { 0 };
+            n.children.iter().map(|c| max_depth(c, d + 1)).chain([here]).max().unwrap()
+        }
+        fn flag(n: &mut ContainerTreeNode, d: usize, want: usize, done: &mut bool) {
+            if !*done && d == want && n.node_type == ContainerNodeType::Container {
+                n.is_selected = true;
+                *done = true;
+                return;
+            }
+            for c in &mut n.children {
+                flag(c, d + 1, want, done);
+            }
+        }
+        let want = max_depth(n, 0);
+        flag(n, 0, want, &mut false);
     }
 
     #[test]
