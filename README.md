@@ -61,6 +61,9 @@ depend on the flash.
 There is no daemon. Each invocation queries rift, draws, holds, and exits; the window server
 discards the overlay when the process ends, which is also why `reset` is just a kill.
 
+A flash retires any flash already on screen before drawing, so tapping a binding repeatedly does
+not leave a stale overlay showing the previous tree for the rest of its own timer.
+
 ## Keybindings
 
 Three bindings are enough. Nothing needs to be rebound:

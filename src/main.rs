@@ -118,6 +118,12 @@ fn main() -> Result<()> {
 }
 
 fn flash(ms: Option<u64>) -> Result<()> {
+    // Retire any flash still on screen first. Without this, tapping a binding
+    // leaves the previous overlay up for the rest of its own timer, showing a
+    // stale tree and selection superimposed on the new one. Killing before
+    // drawing means there is never a frame with two overlays.
+    let _ = cmd::reset();
+
     let mut cfg = config::Config::load()?;
     if let Some(ms) = ms {
         cfg.flash_ms = ms;
