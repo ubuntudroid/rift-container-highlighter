@@ -13,6 +13,10 @@ Each container gets a band that is opaque at its outer edge and fades to transpa
 the member windows. Colour comes from nesting depth, and deeper containers get narrower bands so a
 child sharing an edge with its parent still reads as two levels.
 
+A container that is its parent's only child is skipped: it spans exactly what its parent spans, so
+its outline cannot be told apart from an outline of the parent. It is drawn anyway when it holds the
+selection, since the selection always has to be visible.
+
 The container drawn at **full opacity is the one holding the layout selection — what the next
 structural command will act on.** That is the useful part. `ascend` and `descend` do not move
 anything; they walk the selection up and down the tree, so that `move_node` moves a single window or

@@ -40,8 +40,9 @@ pub fn container_rects(
             selected: true,
         });
     }
+    let root_child_count = root.children.len();
     for child in &root.children {
-        visit(child, 1, &frames, gaps, &mut out);
+        visit(child, 1, root_child_count, &frames, gaps, &mut out);
     }
     out.sort_by_key(|r| r.depth);
     out
@@ -50,11 +51,18 @@ pub fn container_rects(
 fn visit(
     node: &ContainerTreeNode,
     depth: usize,
+    siblings: usize,
     frames: &HashMap<WindowId, Rect>,
     gaps: Gaps,
     out: &mut Vec<ContainerRect>,
 ) {
+    // An only child spans exactly what its parent spans, so its outline cannot
+    // be told apart from the parent's and carries no information — skip it
+    // unless it is the selection, which always has to be visible.
+    let redundant = siblings == 1 && !node.is_selected;
+
     if node.node_type == ContainerNodeType::Container
+        && !redundant
         && let Some(rect) = subtree_union(node, frames)
     {
         out.push(ContainerRect {
@@ -63,8 +71,9 @@ fn visit(
             selected: holds_selection(node),
         });
     }
+    let child_count = node.children.len();
     for child in &node.children {
-        visit(child, depth + 1, frames, gaps, out);
+        visit(child, depth + 1, child_count, frames, gaps, out);
     }
 }
 
@@ -235,6 +244,36 @@ mod tests {
         }
         let want = max_depth(n, 0);
         flag(n, 0, want, &mut false);
+    }
+
+    #[test]
+    fn an_only_child_container_is_skipped_as_redundant() {
+        // Captured from a live layout whose root has exactly one child: that
+        // child spans the whole workspace, so its band is indistinguishable
+        // from an outline of everything.
+        let (l, w, g) = load("single_child_root");
+        assert_eq!(l.container_tree.children.len(), 1);
+
+        let rects = container_rects(&l, &w, g);
+        assert!(
+            rects.iter().all(|r| r.depth != 1),
+            "the only child of root must not be drawn, got {:?}",
+            rects.iter().map(|r| r.depth).collect::<Vec<_>>()
+        );
+        assert!(rects.iter().any(|r| r.depth == 2), "real structure still drawn");
+    }
+
+    #[test]
+    fn an_only_child_container_is_drawn_when_selected() {
+        // Skipping it would make ascending onto it look like nothing happened.
+        let (mut l, w, g) = load("single_child_root");
+        clear_selection(&mut l.container_tree);
+        l.container_tree.children[0].is_selected = true;
+
+        let rects = container_rects(&l, &w, g);
+        let sel: Vec<_> = rects.iter().filter(|r| r.selected).collect();
+        assert_eq!(sel.len(), 1);
+        assert_eq!(sel[0].depth, 1);
     }
 
     #[test]
