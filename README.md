@@ -10,8 +10,15 @@ window — which makes `move_node`, `join_window`, `unjoin_windows`, `toggle_ori
 change it.
 
 Each container gets a band that is opaque at its outer edge and fades to transparent inward across
-the member windows. Colour comes from nesting depth, and the container holding the layout selection
-draws at full opacity while the rest are dimmed.
+the member windows. Colour comes from nesting depth, and deeper containers get narrower bands so a
+child sharing an edge with its parent still reads as two levels.
+
+The container drawn at **full opacity is the one holding the layout selection — what the next
+structural command will act on.** That is the useful part. `ascend` and `descend` do not move
+anything; they walk the selection up and down the tree, so that `move_node` moves a single window or
+a whole container depending on where the selection sits. Without a visual cue you find out by
+pressing the key and undoing it. If the selection is on a bare window, no container is bright; if it
+has been walked all the way up, the whole workspace is outlined.
 
 ## Why outlines and not coloured window borders
 
