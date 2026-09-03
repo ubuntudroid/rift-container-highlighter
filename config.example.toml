@@ -40,6 +40,16 @@ band_width = 36.0
 # clears the member windows before it starts fading inward.
 outset = 4.0
 
+# Band width multiplier per nesting level: 0.6 gives 36 / 22 / 13 points for
+# depths 1 / 2 / 3.
+#
+# A child container usually shares two or three edges with its parent, so their
+# bands land on exactly the same pixels. Narrowing deeper bands turns that
+# overlap into a broad wash with a narrower core inside it, which reads as two
+# levels instead of one muddy band. Set to 1.0 to give every level the same
+# width. Widths are floored at 4 points so deep nesting still shows something.
+band_decay = 0.6
+
 # Corner radius of the band, in points.
 #
 # macOS 26 rounds window corners considerably more than earlier releases.

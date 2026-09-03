@@ -81,6 +81,8 @@ fn main() -> Result<()> {
                     "flash_ms": cfg.flash_ms,
                     "band_width": cfg.band_width,
                     "outset": cfg.outset,
+                    "band_decay": cfg.band_decay,
+                    "band_width_by_depth": (0..4).map(|d| cfg.band_width_for_depth(d)).collect::<Vec<_>>(),
                     "corner_radius": cfg.corner_radius,
                     "level_inset": cfg.level_inset,
                     "dim_factor": cfg.dim_factor,

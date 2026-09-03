@@ -9,14 +9,16 @@ use crate::rift::Gaps;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ContainerRect {
     pub rect: Rect,
-    /// 1 for a direct child of root. Root itself is depth 0 and never drawn.
+    /// 1 for a direct child of root. Root is depth 0 and is drawn only when it
+    /// holds the selection.
     pub depth: usize,
     /// This container holds the layout engine's selection.
     pub selected: bool,
 }
 
-/// One rect per non-root container in the workspace, outermost first, so a
-/// renderer drawing in order paints inner rects on top of their parents.
+/// One rect per container in the workspace, outermost first, so a renderer
+/// drawing in order paints inner rects on top of their parents. Root is
+/// included only when it holds the selection.
 pub fn container_rects(
     layout: &LayoutStateData,
     windows: &[WindowData],
@@ -24,9 +26,21 @@ pub fn container_rects(
 ) -> Vec<ContainerRect> {
     let frames: HashMap<WindowId, Rect> = windows.iter().map(|w| (w.id, w.frame)).collect();
     let mut out = Vec::new();
-    // Root is skipped deliberately: it spans the whole workspace, so an outline
-    // around it carries no information.
-    for child in &layout.container_tree.children {
+    // Root is normally skipped: it spans the whole workspace, so an outline
+    // around it carries no information. The exception is when it holds the
+    // selection — otherwise ascending to root looks identical to ascending to
+    // any other undrawn state, and the command reads as a no-op.
+    let root = &layout.container_tree;
+    if root.is_selected
+        && let Some(rect) = subtree_union(root, &frames)
+    {
+        out.push(ContainerRect {
+            rect: outset(rect, gaps.inner_h / 2.0, gaps.inner_v / 2.0),
+            depth: 0,
+            selected: true,
+        });
+    }
+    for child in &root.children {
         visit(child, 1, &frames, gaps, &mut out);
     }
     out.sort_by_key(|r| r.depth);
@@ -102,8 +116,8 @@ fn outset(r: Rect, dx: f64, dy: f64) -> Rect {
 
 /// True when this node is the layout engine's selection, or is the immediate
 /// parent of the selected window. Only the innermost match is flagged, so at
-/// most one rect comes back selected — and none at all when the selection is a
-/// direct child of the undrawn root.
+/// most one rect comes back selected. When the selection is a direct child of
+/// root, no non-root container matches — root itself is handled separately.
 fn holds_selection(node: &ContainerTreeNode) -> bool {
     node.is_selected
         || node
@@ -177,6 +191,36 @@ mod tests {
         let selected: Vec<_> = rects.iter().filter(|r| r.selected).collect();
         assert_eq!(selected.len(), 1);
         assert_eq!(selected[0].depth, 2, "the innermost container, not an ancestor");
+    }
+
+    #[test]
+    fn root_is_drawn_only_when_it_holds_the_selection() {
+        let (mut l, w, g) = load("nested3");
+
+        // As captured, the selection is on a top-level window, so root is not
+        // drawn and only the two nested containers come back.
+        assert!(!l.container_tree.is_selected);
+        let before = container_rects(&l, &w, g);
+        assert_eq!(before.len(), 2);
+        assert!(before.iter().all(|r| r.depth > 0));
+
+        // After an ascend to root, root must draw — otherwise the command has
+        // no visible effect at all.
+        clear_selection(&mut l.container_tree);
+        l.container_tree.is_selected = true;
+        let after = container_rects(&l, &w, g);
+        assert_eq!(after.len(), 3);
+        let root_rect = after.iter().find(|r| r.depth == 0).expect("root drawn");
+        assert!(root_rect.selected);
+        // Root spans everything, so nothing else can be wider.
+        assert!(after.iter().all(|r| r.rect.size.width <= root_rect.rect.size.width));
+    }
+
+    fn clear_selection(n: &mut ContainerTreeNode) {
+        n.is_selected = false;
+        for c in &mut n.children {
+            clear_selection(c);
+        }
     }
 
     #[test]

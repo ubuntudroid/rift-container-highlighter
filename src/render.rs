@@ -59,6 +59,11 @@ pub fn flash(rects: &[ContainerRect], cfg: &Config, screen: Rect) -> Result<()> 
 /// A band that starts opaque at the container's outer edge and fades to fully
 /// transparent `band_width` points inward, overlapping the member windows.
 ///
+/// Deeper containers get narrower bands (`band_decay`): a child usually shares
+/// two or three edges with its parent, so their bands land on the same pixels,
+/// and differing widths turn that overlap into a broad wash with a narrower
+/// core rather than one muddy band.
+///
 /// Built as a stack of 1pt concentric rounded-rect rings with a linear alpha
 /// ramp, because a CALayer border is already a rounded outline and needs no
 /// CAShapeLayer, CGPath or mask. The ceiling: one sublayer per point of band
@@ -84,7 +89,7 @@ fn band_layers(r: &ContainerRect, cfg: &Config, screen: Rect) -> Vec<Retained<CA
 
     let dim = if r.selected { 1.0 } else { cfg.dim_factor };
     let argb = cfg.color_for_depth(r.depth);
-    let steps = cfg.band_width.max(1.0).round() as usize;
+    let steps = cfg.band_width_for_depth(r.depth).max(1.0).round() as usize;
 
     let mut layers = Vec::with_capacity(steps);
     for i in 0..steps {

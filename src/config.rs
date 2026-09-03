@@ -40,6 +40,13 @@ pub struct Config {
     /// edge clears the member windows.
     #[serde(default = "default_outset")]
     pub outset: f64,
+    /// Band width multiplier per nesting level. A child container usually
+    /// shares two or three edges with its parent, so their bands land on the
+    /// same pixels; making deeper bands narrower turns that overlap into a
+    /// broad wash with a narrower core inside it, which reads as two levels.
+    /// 1.0 gives every level the same width.
+    #[serde(default = "default_band_decay")]
+    pub band_decay: f64,
     #[serde(default = "default_corner_radius")]
     pub corner_radius: f64,
     /// Extra inset per nesting level, so concentric outlines stay separated.
@@ -65,6 +72,7 @@ fn default_theme() -> String { FALLBACK_THEME.to_string() }
 fn default_flash_ms() -> u64 { 1500 }
 fn default_band_width() -> f64 { 36.0 }
 fn default_outset() -> f64 { 4.0 }
+fn default_band_decay() -> f64 { 0.6 }
 // macOS 26 rounds window corners considerably more than earlier releases.
 // JankyBorders reads the real per-window value via SLSWindowIteratorGetCornerRadii
 // and falls back to 9; reading it would mean vendoring the window-iterator API,
@@ -120,7 +128,16 @@ impl Config {
         hexes.iter().filter_map(|c| parse_color(c).ok()).collect()
     }
 
-    /// Colour for a container at `depth` (1-based; root is depth 0 and undrawn).
+    /// Band width for a container at `depth`. Root (depth 0) keeps the full
+    /// width; every level below narrows by `band_decay`. Floored so a deep
+    /// container still draws something.
+    pub fn band_width_for_depth(&self, depth: usize) -> f64 {
+        let level = depth.saturating_sub(1) as i32;
+        (self.band_width * self.band_decay.powi(level)).max(4.0)
+    }
+
+    /// Colour for a container at `depth` (1-based, except root at 0, which is
+    /// drawn only when it holds the selection).
     /// Wraps when nesting runs deeper than the palette.
     pub fn color_for_depth(&self, depth: usize) -> u32 {
         let cs = self.colors();
@@ -220,6 +237,24 @@ mod tests {
         assert!(Config::from_str(r##"palette = ["#xyz"]"##).is_err());
         assert!(Config::from_str(r##"palette = ["#12345"]"##).is_err());
         assert!(Config::from_str(r##"palette = []"##).is_err());
+    }
+
+    #[test]
+    fn band_narrows_with_depth_and_has_a_floor() {
+        let c = Config::from_str("band_width = 36.0\nband_decay = 0.5").unwrap();
+        assert_eq!(c.band_width_for_depth(0), 36.0, "root keeps full width");
+        assert_eq!(c.band_width_for_depth(1), 36.0);
+        assert_eq!(c.band_width_for_depth(2), 18.0);
+        assert_eq!(c.band_width_for_depth(3), 9.0);
+        // Deep nesting must still draw something visible.
+        assert_eq!(c.band_width_for_depth(9), 4.0, "floored");
+    }
+
+    #[test]
+    fn band_decay_of_one_keeps_every_level_equal() {
+        let c = Config::from_str("band_width = 20.0\nband_decay = 1.0").unwrap();
+        assert_eq!(c.band_width_for_depth(1), 20.0);
+        assert_eq!(c.band_width_for_depth(4), 20.0);
     }
 
     #[test]
