@@ -6,10 +6,21 @@
   "layout": {
     "container_tree": {
       "children": [],
+      "frame": {
+        "origin": {
+          "x": 25.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 2510.0
+        }
+      },
       "is_fullscreen": false,
       "is_fullscreen_within_gaps": false,
       "is_selected": true,
       "layout_kind": "horizontal",
+      "node_id": 1,
       "node_type": "container",
       "pending_split": null,
       "role": null,

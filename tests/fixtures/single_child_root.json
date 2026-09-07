@@ -10,10 +10,21 @@
           "children": [
             {
               "children": [],
+              "frame": {
+                "origin": {
+                  "x": 25.0,
+                  "y": 56.0
+                },
+                "size": {
+                  "height": 1359.0,
+                  "width": 554.0
+                }
+              },
               "is_fullscreen": false,
               "is_fullscreen_within_gaps": false,
               "is_selected": true,
               "layout_kind": null,
+              "node_id": 3,
               "node_type": "window",
               "pending_split": null,
               "role": null,
@@ -27,10 +38,21 @@
               "children": [
                 {
                   "children": [],
+                  "frame": {
+                    "origin": {
+                      "x": 587.0,
+                      "y": 56.0
+                    },
+                    "size": {
+                      "height": 450.0,
+                      "width": 1109.0
+                    }
+                  },
                   "is_fullscreen": false,
                   "is_fullscreen_within_gaps": false,
                   "is_selected": false,
                   "layout_kind": null,
+                  "node_id": 5,
                   "node_type": "window",
                   "pending_split": null,
                   "role": null,
@@ -42,10 +64,21 @@
                 },
                 {
                   "children": [],
+                  "frame": {
+                    "origin": {
+                      "x": 587.0,
+                      "y": 514.0
+                    },
+                    "size": {
+                      "height": 901.0,
+                      "width": 1109.0
+                    }
+                  },
                   "is_fullscreen": false,
                   "is_fullscreen_within_gaps": false,
                   "is_selected": false,
                   "layout_kind": null,
+                  "node_id": 6,
                   "node_type": "window",
                   "pending_split": null,
                   "role": null,
@@ -56,10 +89,21 @@
                   }
                 }
               ],
+              "frame": {
+                "origin": {
+                  "x": 587.0,
+                  "y": 56.0
+                },
+                "size": {
+                  "height": 1359.0,
+                  "width": 1109.0
+                }
+              },
               "is_fullscreen": false,
               "is_fullscreen_within_gaps": false,
               "is_selected": false,
               "layout_kind": "vertical",
+              "node_id": 4,
               "node_type": "container",
               "pending_split": null,
               "role": null,
@@ -68,10 +112,21 @@
             },
             {
               "children": [],
+              "frame": {
+                "origin": {
+                  "x": 1704.0,
+                  "y": 56.0
+                },
+                "size": {
+                  "height": 1359.0,
+                  "width": 831.0
+                }
+              },
               "is_fullscreen": false,
               "is_fullscreen_within_gaps": false,
               "is_selected": false,
               "layout_kind": null,
+              "node_id": 7,
               "node_type": "window",
               "pending_split": null,
               "role": null,
@@ -82,10 +137,21 @@
               }
             }
           ],
+          "frame": {
+            "origin": {
+              "x": 25.0,
+              "y": 56.0
+            },
+            "size": {
+              "height": 1359.0,
+              "width": 2510.0
+            }
+          },
           "is_fullscreen": false,
           "is_fullscreen_within_gaps": false,
           "is_selected": false,
           "layout_kind": "horizontal",
+          "node_id": 2,
           "node_type": "container",
           "pending_split": null,
           "role": null,
@@ -93,10 +159,21 @@
           "window_id": null
         }
       ],
+      "frame": {
+        "origin": {
+          "x": 25.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 2510.0
+        }
+      },
       "is_fullscreen": false,
       "is_fullscreen_within_gaps": false,
       "is_selected": false,
       "layout_kind": "horizontal",
+      "node_id": 1,
       "node_type": "container",
       "pending_split": null,
       "role": null,

@@ -133,7 +133,7 @@ palette, so the script can warn instead of letting an unknown name fall back.
 ## Versioning
 
 `rift-client` and `rift-protocol` are git dependencies pinned to the tag of the rift release this
-was built against — currently `v0.5.5`. **Pin the tag of the rift you actually run.** The IPC wire
+was built against — currently `v0.5.6`. **Pin the tag of the rift you actually run.** The IPC wire
 format drifts between releases: built against `main`, `get_layout_state` fails against a 0.5.5
 daemon with `data did not match any variant of untagged enum RiftResponse`.
 

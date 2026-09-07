@@ -8,10 +8,21 @@
       "children": [
         {
           "children": [],
+          "frame": {
+            "origin": {
+              "x": 25.0,
+              "y": 56.0
+            },
+            "size": {
+              "height": 1359.0,
+              "width": 831.0
+            }
+          },
           "is_fullscreen": false,
           "is_fullscreen_within_gaps": false,
           "is_selected": false,
           "layout_kind": null,
+          "node_id": 2,
           "node_type": "window",
           "pending_split": null,
           "role": null,
@@ -23,10 +34,21 @@
         },
         {
           "children": [],
+          "frame": {
+            "origin": {
+              "x": 864.0,
+              "y": 56.0
+            },
+            "size": {
+              "height": 1359.0,
+              "width": 832.0
+            }
+          },
           "is_fullscreen": false,
           "is_fullscreen_within_gaps": false,
           "is_selected": true,
           "layout_kind": null,
+          "node_id": 3,
           "node_type": "window",
           "pending_split": null,
           "role": null,
@@ -38,10 +60,21 @@
         },
         {
           "children": [],
+          "frame": {
+            "origin": {
+              "x": 1704.0,
+              "y": 56.0
+            },
+            "size": {
+              "height": 1359.0,
+              "width": 831.0
+            }
+          },
           "is_fullscreen": false,
           "is_fullscreen_within_gaps": false,
           "is_selected": false,
           "layout_kind": null,
+          "node_id": 4,
           "node_type": "window",
           "pending_split": null,
           "role": null,
@@ -52,10 +85,21 @@
           }
         }
       ],
+      "frame": {
+        "origin": {
+          "x": 25.0,
+          "y": 56.0
+        },
+        "size": {
+          "height": 1359.0,
+          "width": 2510.0
+        }
+      },
       "is_fullscreen": false,
       "is_fullscreen_within_gaps": false,
       "is_selected": false,
       "layout_kind": "horizontal",
+      "node_id": 1,
       "node_type": "container",
       "pending_split": null,
       "role": null,

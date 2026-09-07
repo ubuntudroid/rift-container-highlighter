@@ -1,6 +1,6 @@
 //! Code vendored from https://github.com/acsandmann/rift (Apache-2.0).
 //!
-//! Upstream rev: b67cf2efc447174ca9e0cd10f558a224ed32b038 (tag v0.5.5)
+//! Upstream rev: a3e6bfb76938210ff1c22964184832c4dbf3fc93 (tag v0.5.6)
 //!
 //! This arrangement is permanent. acsandmann/rift#467 asked for these
 //! primitives as a published crate and was closed: vendoring is how rift's CG

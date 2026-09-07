@@ -1,7 +1,7 @@
 //! CGS overlay window, vendored from rift.
 //!
 //! Source: `src/sys/cgs_window.rs` of https://github.com/acsandmann/rift at rev
-//! b67cf2efc447174ca9e0cd10f558a224ed32b038 (tag v0.5.5), Apache-2.0.
+//! a3e6bfb76938210ff1c22964184832c4dbf3fc93 (tag v0.5.6), Apache-2.0.
 //! See NOTICE at the repository root.
 //!
 //! Deviations from upstream, all mechanical:

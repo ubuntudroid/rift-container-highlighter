@@ -320,7 +320,7 @@ dependencies = [
 [[package]]
 name = "rift-client"
 version = "0.1.0"
-source = "git+https://github.com/acsandmann/rift?rev=b67cf2efc447174ca9e0cd10f558a224ed32b038#b67cf2efc447174ca9e0cd10f558a224ed32b038"
+source = "git+https://github.com/acsandmann/rift?rev=a3e6bfb76938210ff1c22964184832c4dbf3fc93#a3e6bfb76938210ff1c22964184832c4dbf3fc93"
 dependencies = [
  "rift-protocol",
  "serde",
@@ -350,7 +350,7 @@ dependencies = [
 [[package]]
 name = "rift-protocol"
 version = "0.1.0"
-source = "git+https://github.com/acsandmann/rift?rev=b67cf2efc447174ca9e0cd10f558a224ed32b038#b67cf2efc447174ca9e0cd10f558a224ed32b038"
+source = "git+https://github.com/acsandmann/rift?rev=a3e6bfb76938210ff1c22964184832c4dbf3fc93#a3e6bfb76938210ff1c22964184832c4dbf3fc93"
 dependencies = [
  "serde",
  "serde_json",

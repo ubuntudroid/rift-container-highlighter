@@ -28,5 +28,5 @@ objc2-quartz-core = "0.3.2"
 # to unrelated third parties (lazhenyi/rift-proto and infinityabundance/riftd);
 # acsandmann publishes neither. Git rev only, re-pinned on rift upgrades along
 # with the files in src/vendor/.
-rift-client = { git = "https://github.com/acsandmann/rift", rev = "b67cf2efc447174ca9e0cd10f558a224ed32b038" }
-rift-protocol = { git = "https://github.com/acsandmann/rift", rev = "b67cf2efc447174ca9e0cd10f558a224ed32b038" }
+rift-client = { git = "https://github.com/acsandmann/rift", rev = "a3e6bfb76938210ff1c22964184832c4dbf3fc93" }
+rift-protocol = { git = "https://github.com/acsandmann/rift", rev = "a3e6bfb76938210ff1c22964184832c4dbf3fc93" }
