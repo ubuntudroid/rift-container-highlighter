@@ -41,9 +41,14 @@ flash_ms = 1500
 # the member windows by roughly this much.
 band_width = 36.0
 
-# Extra outward growth beyond half the inner gap, so the band's outer edge
-# clears the member windows before it starts fading inward.
-outset = 4.0
+# Extra outward growth beyond the container's own frame, so the band's outer
+# edge clears the member windows before it starts fading inward.
+#
+# rift reports each container's frame as the space the layout engine allocated
+# it, and windows sit flush against those edges. The default of 8 is what the
+# band used to grow by in total: half an inner gap added by the geometry, plus
+# an outset of 4 on top. Raise it if your gaps are wider than rift's default.
+outset = 8.0
 
 # Band width multiplier per nesting level: 0.6 gives 36 / 22 / 13 points for
 # depths 1 / 2 / 3.
@@ -71,11 +76,3 @@ level_inset = 3.0
 # Alpha multiplier for containers that do NOT hold the layout selection. The
 # selected container always draws at full opacity. 1.0 disables dimming.
 dim_factor = 0.45
-
-# Gaps are read from rift's own config over IPC
-# (settings.layout.gaps.inner.{horizontal,vertical}). Uncomment to override,
-# e.g. if you want outlines to hug window edges regardless of your gaps.
-#
-# [gaps]
-# inner_h = 8.0
-# inner_v = 8.0

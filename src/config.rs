@@ -41,8 +41,8 @@ pub struct Config {
     /// inward, so it overlaps the member windows by roughly this much.
     #[serde(default = "default_band_width")]
     pub band_width: f64,
-    /// Extra outward growth beyond half the inner gap, so the band's outer
-    /// edge clears the member windows.
+    /// Extra outward growth beyond the container's own frame, so the band's
+    /// outer edge clears the member windows before it starts fading inward.
     #[serde(default = "default_outset")]
     pub outset: f64,
     /// Band width multiplier per nesting level. A child container usually
@@ -60,23 +60,16 @@ pub struct Config {
     /// Alpha multiplier for containers that do not hold the selection.
     #[serde(default = "default_dim_factor")]
     pub dim_factor: f64,
-
-    /// Overrides the gaps read from rift's own config.
-    #[serde(default)]
-    pub gaps: Option<GapsOverride>,
-}
-
-#[derive(Debug, Clone, Copy, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct GapsOverride {
-    pub inner_h: f64,
-    pub inner_v: f64,
 }
 
 fn default_theme() -> String { FALLBACK_THEME.to_string() }
 fn default_flash_ms() -> u64 { 1500 }
 fn default_band_width() -> f64 { 36.0 }
-fn default_outset() -> f64 { 4.0 }
+// 8, not 4: windows sit flush against the frames the layout engine allocated,
+// and the band used to grow by 8 in total — half an inner gap from the
+// arithmetic in geometry.rs, plus an outset of 4. This is now the only dial,
+// so it absorbs both.
+fn default_outset() -> f64 { 8.0 }
 fn default_band_decay() -> f64 { 0.6 }
 // macOS 26 rounds window corners considerably more than earlier releases.
 // JankyBorders reads the real per-window value via SLSWindowIteratorGetCornerRadii

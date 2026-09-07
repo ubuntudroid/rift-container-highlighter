@@ -1,8 +1,4 @@
 {
-  "gaps": {
-    "inner_h": 8.0,
-    "inner_v": 8.0
-  },
   "layout": {
     "container_tree": {
       "children": [
@@ -133,76 +129,5 @@
       }
     ],
     "workspace_id": 2
-  },
-  "windows": [
-    {
-      "app_name": "Finder",
-      "bundle_id": "com.apple.finder",
-      "frame": {
-        "origin": {
-          "x": 25.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 1359.0,
-          "width": 831.0
-        }
-      },
-      "id": {
-        "idx": 18689,
-        "pid": 4566
-      },
-      "is_floating": false,
-      "is_focused": false,
-      "layout_position": null,
-      "title": "Window A",
-      "window_server_id": 18689
-    },
-    {
-      "app_name": "Finder",
-      "bundle_id": "com.apple.finder",
-      "frame": {
-        "origin": {
-          "x": 864.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 1359.0,
-          "width": 832.0
-        }
-      },
-      "id": {
-        "idx": 18691,
-        "pid": 4566
-      },
-      "is_floating": false,
-      "is_focused": true,
-      "layout_position": null,
-      "title": "Window B",
-      "window_server_id": 18691
-    },
-    {
-      "app_name": "Finder",
-      "bundle_id": "com.apple.finder",
-      "frame": {
-        "origin": {
-          "x": 1704.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 1359.0,
-          "width": 831.0
-        }
-      },
-      "id": {
-        "idx": 18693,
-        "pid": 4566
-      },
-      "is_floating": false,
-      "is_focused": false,
-      "layout_position": null,
-      "title": "Window C",
-      "window_server_id": 18693
-    }
-  ]
+  }
 }

@@ -60,7 +60,7 @@ rift-container-highlighter wrap ascend             # run a rift command, then fl
 rift-container-highlighter wrap join-window left
 rift-container-highlighter reset                   # clear a flash left on screen
 rift-container-highlighter themes                  # theme names with a built-in palette
-rift-container-highlighter dump                    # layout, frames, computed rects, effective config
+rift-container-highlighter dump                    # layout with per-node frames, computed rects, config
 ```
 
 `wrap` accepts the structural commands only — `ascend`, `descend`, `move-node`, `join-window`,
@@ -96,7 +96,7 @@ it, so a letter is easy to lose to something else: `Alt + P` is Claude Code's mo
 `Alt + D` is zsh's `kill-word`.
 
 `ascend` and `descend` are wrapped because they are the only structural commands that emit no
-event — nothing outside the keybinding can notice a selection change. Everything else
+`layout_changed` — the selection moves without the tree changing. Everything else
 (`join_window`, `move_node`, `toggle_orientation`, `unjoin`) already fires `layout_changed`, so if
 you want those to flash automatically, subscribe instead of rebinding:
 
@@ -158,14 +158,15 @@ anywhere.
 
 ## Known limits
 
-- **Container rects are approximate.** A container's rect is the union of its member windows'
-  frames, grown by half the inner gap, because the protocol exposes no per-node geometry.
-  [rift#466](https://github.com/acsandmann/rift/issues/466) asks for it.
+- **A container's rect is the layout target, not where its windows are right now.** rift reports
+  the frame the layout engine allocated, before any window animation, so during a resize or a
+  workspace switch the band can sit where the windows are heading rather than where they are.
 - **Colours are keyed to depth, not container identity**, so a container does not keep its colour
-  across a structural change. Tree nodes have no stable id, deliberately — upstream documents that
-  internal ids are not stable across mutations and suggests identifying nodes by path.
-- **`ascend`/`descend` emit no event**, so nothing outside the `wrap` keybindings can notice a
-  selection change. Also in [rift#466](https://github.com/acsandmann/rift/issues/466).
+  across a structural change. v0.5.6 added a stable `node_id`, so keying on identity is now
+  possible; this does not do it.
+- **`ascend`/`descend` are wrapped rather than subscribed to.** They emit no `layout_changed`, which
+  is why the `wrap` subcommand exists. v0.5.6 added a `selection_changed` event, so subscribing is
+  now an option; the `wrap` bindings are what this ships with.
 - Nesting deeper than the palette wraps colours.
 
 ## Licence

@@ -1,8 +1,4 @@
 {
-  "gaps": {
-    "inner_h": 8.0,
-    "inner_v": 8.0
-  },
   "layout": {
     "container_tree": {
       "children": [
@@ -211,99 +207,5 @@
       }
     ],
     "workspace_id": 2
-  },
-  "windows": [
-    {
-      "app_name": "Ghostty",
-      "bundle_id": "com.mitchellh.ghostty",
-      "frame": {
-        "origin": {
-          "x": 25.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 1359.0,
-          "width": 554.0
-        }
-      },
-      "id": {
-        "idx": 819,
-        "pid": 4508
-      },
-      "is_floating": false,
-      "is_focused": true,
-      "layout_position": null,
-      "title": "Window A",
-      "window_server_id": 819
-    },
-    {
-      "app_name": "Ghostty",
-      "bundle_id": "com.mitchellh.ghostty",
-      "frame": {
-        "origin": {
-          "x": 1704.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 1359.0,
-          "width": 831.0
-        }
-      },
-      "id": {
-        "idx": 20001,
-        "pid": 4508
-      },
-      "is_floating": false,
-      "is_focused": false,
-      "layout_position": null,
-      "title": "Window B",
-      "window_server_id": 20001
-    },
-    {
-      "app_name": "Ghostty",
-      "bundle_id": "com.mitchellh.ghostty",
-      "frame": {
-        "origin": {
-          "x": 587.0,
-          "y": 56.0
-        },
-        "size": {
-          "height": 450.0,
-          "width": 1109.0
-        }
-      },
-      "id": {
-        "idx": 20004,
-        "pid": 4508
-      },
-      "is_floating": false,
-      "is_focused": false,
-      "layout_position": null,
-      "title": "Window C",
-      "window_server_id": 20004
-    },
-    {
-      "app_name": "Ghostty",
-      "bundle_id": "com.mitchellh.ghostty",
-      "frame": {
-        "origin": {
-          "x": 587.0,
-          "y": 514.0
-        },
-        "size": {
-          "height": 901.0,
-          "width": 1109.0
-        }
-      },
-      "id": {
-        "idx": 20010,
-        "pid": 4508
-      },
-      "is_floating": false,
-      "is_focused": false,
-      "layout_position": null,
-      "title": "Window D",
-      "window_server_id": 20010
-    }
-  ]
+  }
 }

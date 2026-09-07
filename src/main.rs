@@ -57,7 +57,7 @@ fn main() -> Result<()> {
             let s = rift::snapshot()?;
             // The computed rects travel with the raw state so a fixture records
             // both the input and what the geometry made of it.
-            let rects: Vec<_> = geometry::container_rects(&s.layout, &s.windows, s.gaps)
+            let rects: Vec<_> = geometry::container_rects(&s.layout)
                 .into_iter()
                 .map(|r| {
                     serde_json::json!({
@@ -73,8 +73,6 @@ fn main() -> Result<()> {
                 .collect();
             let out = serde_json::json!({
                 "layout": s.layout,
-                "windows": s.windows,
-                "gaps": { "inner_h": s.gaps.inner_h, "inner_v": s.gaps.inner_v },
                 "container_rects": rects,
                 "config": {
                     "theme": cfg.theme,
@@ -86,9 +84,6 @@ fn main() -> Result<()> {
                     "corner_radius": cfg.corner_radius,
                     "level_inset": cfg.level_inset,
                     "dim_factor": cfg.dim_factor,
-                    "gaps_override": cfg.gaps.map(|g| serde_json::json!({
-                        "inner_h": g.inner_h, "inner_v": g.inner_v,
-                    })),
                     "palette": cfg.colors().iter().map(|c| format!("#{c:08x}")).collect::<Vec<_>>(),
                 },
             });
@@ -129,7 +124,7 @@ fn flash(ms: Option<u64>) -> Result<()> {
         cfg.flash_ms = ms;
     }
     let s = rift::snapshot()?;
-    let rects = geometry::container_rects(&s.layout, &s.windows, s.gaps);
+    let rects = geometry::container_rects(&s.layout);
     render::flash(&rects, &cfg, s.screen)
 }
 
