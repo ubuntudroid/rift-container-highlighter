@@ -56,17 +56,10 @@ cargo install --path .
 ```
 rift-container-highlighter peek                    # flash the current tree
 rift-container-highlighter peek --ms 10000         # ... and hold it, for tuning
-rift-container-highlighter wrap ascend             # run a rift command, then flash
-rift-container-highlighter wrap join-window left
 rift-container-highlighter reset                   # clear a flash left on screen
 rift-container-highlighter themes                  # theme names with a built-in palette
 rift-container-highlighter dump                    # layout with per-node frames, computed rects, config
 ```
-
-`wrap` accepts the structural commands only — `ascend`, `descend`, `move-node`, `join-window`,
-`consume-or-expel-window`, `toggle-stack`, `toggle-orientation`, `unjoin` — the ones whose effect on
-the tree you cannot otherwise see. It runs the rift command *first*, so keypress latency does not
-depend on the flash.
 
 There is no daemon. Each invocation queries rift, draws, holds, and exits; the window server
 discards the overlay when the process ends, which is also why `reset` is just a kill.
@@ -76,13 +69,13 @@ not leave a stale overlay showing the previous tree for the rest of its own time
 
 ## Keybindings
 
-Three bindings are enough. Nothing needs to be rebound:
+One binding, plus rift's own `ascend` and `descend`. Nothing is wrapped or rebound:
 
 ```toml
 # ~/.config/rift/config.toml
 "Alt + Backslash"    = { exec = "/path/to/rift-container-highlighter peek" }
-"Alt + BracketLeft"  = { exec = "/path/to/rift-container-highlighter wrap ascend" }
-"Alt + BracketRight" = { exec = "/path/to/rift-container-highlighter wrap descend" }
+"Alt + BracketLeft"  = "ascend"
+"Alt + BracketRight" = "descend"
 ```
 
 None of the three modifies the tree, so they belong with your focus bindings rather than with the
@@ -95,18 +88,45 @@ Punctuation keys are worth preferring here. A rift hotkey swallows the key befor
 it, so a letter is easy to lose to something else: `Alt + P` is Claude Code's model switcher and
 `Alt + D` is zsh's `kill-word`.
 
-`ascend` and `descend` are wrapped because they are the only structural commands that emit no
-`layout_changed` — the selection moves without the tree changing. Everything else
-(`join_window`, `move_node`, `toggle_orientation`, `unjoin`) already fires `layout_changed`, so if
-you want those to flash automatically, subscribe instead of rebinding:
+## Flashing automatically
 
-```sh
-rift-cli subscribe cli --event layout_changed \
-  --command /path/to/rift-container-highlighter --args peek
+`ascend` and `descend` move the selection without changing the tree, so they emit no
+`layout_changed`. rift 0.5.6 added `selection_changed` for exactly them. Subscribe to it and the
+flash follows the selection with no wrapper in the loop:
+
+```toml
+# ~/.config/rift/config.toml
+run_on_start = [
+  "/path/to/rift-cli subscribe cli --event selection_changed --command /bin/sh --args -c --args '/path/to/rift-container-highlighter peek'",
+]
 ```
 
-That fires on divider drags and on windows opening and closing too, so it flashes more than most
-people want. Suppressing that needs a structure hash cached between runs, which this does not do.
+It fires only for `ascend` and `descend`, and only when the selection actually moved — so a press at
+the top or bottom of the tree flashes nothing, and a focus change never flashes at all.
+
+**The command must go through `/bin/sh`.** rift appends the event JSON as a trailing argument to
+every CLI subscription, so `--command /path/to/rift-container-highlighter --args peek` runs
+`… peek '{"type":…}'`, which is rejected as an unexpected argument — nothing draws, and the failure
+is silent. `sh -c '<command>'` takes the JSON as `$0` and ignores it.
+
+Spell out all three paths. `run_on_start` resolves the first token against rift's launchd
+environment, and the generated plist carries whatever `PATH` it was created with, so a bare
+`rift-cli` resolves on some installs and not others.
+
+`run_on_start` runs at rift startup only, not on a config hot reload, so the subscription is
+registered once per rift launch. To add it without restarting, run the same `rift-cli subscribe`
+line by hand once; `rift-cli subscribe list-cli` shows what is registered.
+
+The tree-modifying commands (`join_window`, `move_node`, `toggle_orientation`, `unjoin`) already
+fire `layout_changed`, so the same recipe covers them:
+
+```toml
+  "/path/to/rift-cli subscribe cli --event layout_changed --command /bin/sh --args -c --args '/path/to/rift-container-highlighter peek'",
+```
+
+That one also fires on divider drags and on windows opening and closing, so it flashes more than
+most people want. Suppressing that needs a structure hash cached between runs, which this does not
+do.
 
 rift keybindings fire on key-down only — there is no release action — so hold-to-peek is not
 possible. `peek` is a timed flash.
@@ -164,9 +184,9 @@ anywhere.
 - **Colours are keyed to depth, not container identity**, so a container does not keep its colour
   across a structural change. v0.5.6 added a stable `node_id`, so keying on identity is now
   possible; this does not do it.
-- **`ascend`/`descend` are wrapped rather than subscribed to.** They emit no `layout_changed`, which
-  is why the `wrap` subcommand exists. v0.5.6 added a `selection_changed` event, so subscribing is
-  now an option; the `wrap` bindings are what this ships with.
+- **A subscription cannot pass the event payload through.** `selection_changed` carries the full
+  layout, but the trailing-JSON argument has to be discarded by `sh`, so `peek` re-queries rift
+  instead of drawing what the event already delivered. One redundant IPC call per flash.
 - Nesting deeper than the palette wraps colours.
 
 ## Licence

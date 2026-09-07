@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use rift_client::RiftMachClient;
-use rift_protocol::{LayoutCommand, LayoutStateData, Point, Rect, RiftCommand, Size};
+use rift_protocol::{LayoutStateData, Point, Rect, Size};
 
 pub struct Snapshot {
     pub layout: LayoutStateData,
@@ -14,17 +14,6 @@ pub fn snapshot() -> Result<Snapshot> {
     let layout = client.get_layout_state(None).context("get_layout_state failed")?;
     let screen = screen_for_space(&client, layout.space_id)?;
     Ok(Snapshot { layout, screen })
-}
-
-/// Run a layout command in rift. Called before flashing so the outlines show
-/// the layout the command produced, and so keypress latency is unaffected by
-/// anything the flash does.
-pub fn execute_layout(cmd: LayoutCommand) -> Result<()> {
-    let client = RiftMachClient::connect().context("rift is not running")?;
-    client
-        .execute(RiftCommand::Layout(cmd))
-        .context("executing the layout command failed")?;
-    Ok(())
 }
 
 /// The display whose active space is the one we queried. Falls back to the

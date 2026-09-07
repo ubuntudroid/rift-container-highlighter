@@ -25,18 +25,6 @@ enum Command {
         #[arg(long)]
         ms: Option<u64>,
     },
-    /// Run a rift layout command, then flash. Bind this instead of the
-    /// built-in action.
-    Wrap {
-        /// ascend, descend, move-node, join-window, consume-or-expel-window,
-        /// toggle-stack, toggle-orientation, unjoin
-        layout_command: String,
-        /// left, right, up or down, for the commands that take one
-        direction: Option<String>,
-        /// Override the configured flash duration, in milliseconds
-        #[arg(long)]
-        ms: Option<u64>,
-    },
     /// Clear any flash left on screen by killing other instances
     Reset,
     /// List the theme names with a built-in palette, one per line
@@ -90,14 +78,6 @@ fn main() -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
         Command::Peek { ms } => flash(ms)?,
-        Command::Wrap { layout_command, direction, ms } => {
-            let dir = direction.as_deref().map(cmd::parse_direction).transpose()?;
-            let layout = cmd::to_layout_command(&layout_command, dir)?;
-            // The rift command runs first: keypress latency must not depend on
-            // anything the flash does.
-            rift::execute_layout(layout)?;
-            flash(ms)?;
-        }
         Command::Themes => {
             for t in config::known_themes() {
                 println!("{t}");
