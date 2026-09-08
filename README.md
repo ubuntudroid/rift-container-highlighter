@@ -64,6 +64,11 @@ rift-container-highlighter dump                    # layout with per-node frames
 There is no daemon. Each invocation queries rift, draws, holds, and exits; the window server
 discards the overlay when the process ends, which is also why `reset` is just a kill.
 
+The selected window gets a band of its own, so a press always produces feedback. Without it a flat
+workspace and any selection resting on a leaf both draw nothing, which looks the same as a dead
+keybinding. Only the selected window is drawn — outlining every window would just restate what is
+already on screen.
+
 A flash retires any flash already on screen before drawing, so tapping a binding repeatedly does
 not leave a stale overlay showing the previous tree for the rest of its own timer.
 

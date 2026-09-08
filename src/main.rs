@@ -51,6 +51,7 @@ fn main() -> Result<()> {
                     serde_json::json!({
                         "depth": r.depth,
                         "selected": r.selected,
+                        "is_window": r.is_window,
                         "color": format!("#{:08x}", cfg.color_for_depth(r.depth)),
                         "x": r.rect.origin.x,
                         "y": r.rect.origin.y,

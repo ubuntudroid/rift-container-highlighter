@@ -16,7 +16,8 @@ theme = "tokyo-night"
 #
 # Indexed by nesting depth starting at root: slot 0 is the root container, slot
 # 1 the first level below it, and so on, wrapping when a layout nests deeper
-# than the palette. Root has its own slot on purpose — it is drawn only when
+# than the palette. A selected window uses the slot for its own depth, so it
+# shares a colour with containers at that level. Root has its own slot on purpose — it is drawn only when
 # selected, and a band identical to the one nested inside it reads as a bug.
 #
 # A malformed colour is an error rather than a silent fallback. Setting this

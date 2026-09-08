@@ -6,13 +6,19 @@ pub struct ContainerRect {
     /// 1 for a direct child of root. Root is depth 0 and is drawn only when it
     /// holds the selection.
     pub depth: usize,
-    /// This container holds the layout engine's selection.
+    /// This node holds the layout engine's selection.
     pub selected: bool,
+    /// A selected window's own frame rather than a container's. Always
+    /// `selected`, since a window is drawn only when it is the selection.
+    pub is_window: bool,
 }
 
 /// One rect per container in the workspace, outermost first, so a renderer
 /// drawing in order paints inner rects on top of their parents. Root is
-/// included only when it holds the selection.
+/// included only when it holds the selection, and so is a window: the
+/// selected one gets a rect of its own so that every press produces feedback
+/// even where there is no container to outline — a flat workspace, or any
+/// selection sitting on a leaf.
 ///
 /// Rects are the layout engine's own `frame` for each node, so nothing here
 /// reconstructs geometry or corrects for gaps. Growing the band outward past
@@ -25,7 +31,12 @@ pub fn container_rects(layout: &LayoutStateData) -> Vec<ContainerRect> {
     // any other undrawn state, and the command reads as a no-op.
     let root = &layout.container_tree;
     if root.is_selected && enclosable(root) {
-        out.push(ContainerRect { rect: root.frame, depth: 0, selected: true });
+        out.push(ContainerRect {
+            rect: root.frame,
+            depth: 0,
+            selected: true,
+            is_window: false,
+        });
     }
     let root_child_count = root.children.len();
     for child in &root.children {
@@ -43,8 +54,24 @@ fn visit(node: &ContainerTreeNode, depth: usize, siblings: usize, out: &mut Vec<
     // has to be visible.
     let redundant = siblings == 1 && !node.is_selected;
 
-    if node.node_type == ContainerNodeType::Container && !redundant && enclosable(node) {
-        out.push(ContainerRect { rect: node.frame, depth, selected: holds_selection(node) });
+    // A selected window draws its own frame. Without it, descending onto a
+    // leaf and peeking at a flat workspace both render nothing at all, which
+    // is indistinguishable from a dead keybinding. The only-child rule does
+    // not apply: rift propagates a parent's allocation only into container
+    // children, so a window always carries its own frame.
+    let draw = match node.node_type {
+        ContainerNodeType::Container => !redundant,
+        ContainerNodeType::Window => node.is_selected,
+        ContainerNodeType::Placeholder => false,
+    };
+
+    if draw && enclosable(node) {
+        out.push(ContainerRect {
+            rect: node.frame,
+            depth,
+            selected: holds_selection(node),
+            is_window: node.node_type == ContainerNodeType::Window,
+        });
     }
     let child_count = node.children.len();
     for child in &node.children {
@@ -91,6 +118,12 @@ fn holds_selection(node: &ContainerTreeNode) -> bool {
 mod tests {
     use super::*;
 
+    /// Container rects only. Most of these tests are about the container
+    /// outlines, and a selected window now contributes a rect of its own.
+    fn containers(l: &LayoutStateData) -> Vec<ContainerRect> {
+        container_rects(l).into_iter().filter(|r| !r.is_window).collect()
+    }
+
     fn load(name: &str) -> LayoutStateData {
         let raw = std::fs::read_to_string(format!("tests/fixtures/{name}.json"))
             .unwrap_or_else(|e| panic!("fixture {name}: {e}"));
@@ -99,9 +132,16 @@ mod tests {
     }
 
     #[test]
-    fn flat_layout_yields_no_container_rects() {
+    fn flat_layout_draws_no_container() {
+        // Root still must not draw just because it is the only node above the
+        // windows; an outline around the whole workspace carries nothing.
         let l = load("flat");
-        assert!(container_rects(&l).is_empty(), "root must be skipped");
+        assert!(!l.container_tree.is_selected);
+        let rects = container_rects(&l);
+        assert!(
+            rects.iter().all(|r| r.rect != l.container_tree.frame),
+            "root must be skipped"
+        );
     }
 
     #[test]
@@ -168,14 +208,14 @@ mod tests {
         let l = load("nested3");
         let node = &l.container_tree.children[1];
         assert_eq!(node.node_type, ContainerNodeType::Container);
-        let rects = container_rects(&l);
+        let rects = containers(&l);
         assert_eq!(rects[0].rect, node.frame);
     }
 
     #[test]
     fn nested_layout_yields_one_rect_per_non_root_container() {
         let l = load("nested3");
-        let rects = container_rects(&l);
+        let rects = containers(&l);
         assert_eq!(rects.len(), 2, "two non-root containers in nested3");
         assert_eq!(rects[0].depth, 1, "outermost first");
         assert_eq!(rects[1].depth, 2);
@@ -184,7 +224,7 @@ mod tests {
     #[test]
     fn inner_rect_is_contained_by_its_parent() {
         let l = load("nested3");
-        let rects = container_rects(&l);
+        let rects = containers(&l);
         let outer = rects[0].rect;
         let inner = rects[1].rect;
         assert!(inner.origin.x >= outer.origin.x);
@@ -194,21 +234,48 @@ mod tests {
     }
 
     #[test]
-    fn no_rect_is_selected_when_the_selection_is_a_direct_child_of_root() {
+    fn no_container_is_bright_when_the_selection_is_a_window() {
+        // nested3 has a top-level window selected. The bright rect must be
+        // that window's own frame and nothing else: a container is not what
+        // the next structural command would act on.
         let l = load("nested3");
+        let window = &l.container_tree.children[0];
+        assert_eq!(window.node_type, ContainerNodeType::Window);
+
         let rects = container_rects(&l);
-        assert_eq!(rects.iter().filter(|r| r.selected).count(), 0);
+        let bright: Vec<_> = rects.iter().filter(|r| r.selected).collect();
+        assert_eq!(bright.len(), 1);
+        assert_eq!(bright[0].rect, window.frame, "the window, not a container");
+        assert_eq!(bright[0].depth, 1);
     }
 
     #[test]
-    fn a_selected_window_brightens_no_container() {
-        // The fixture has a window selected, deep inside the tree. Nothing may
-        // be bright: the next structural command acts on that window, not on a
-        // container. If its parent were brightened, the first ascend would
-        // render identically to this and look like a no-op.
+    fn a_selected_window_deep_in_the_tree_brightens_only_itself() {
+        // The fixture has a window selected at depth 3. Its ancestors must
+        // stay dim: brightening a parent would make the first ascend render
+        // identically to this and look like a no-op.
         let l = load("nested3_selected");
         let rects = container_rects(&l);
-        assert!(rects.iter().all(|r| !r.selected));
+        let bright: Vec<_> = rects.iter().filter(|r| r.selected).collect();
+        assert_eq!(bright.len(), 1);
+        assert_eq!(bright[0].depth, 3, "the window itself");
+        assert!(
+            rects.iter().filter(|r| r.depth < 3).all(|r| !r.selected),
+            "no ancestor may be bright"
+        );
+    }
+
+    #[test]
+    fn a_flat_workspace_still_shows_the_selection() {
+        // The whole reason windows draw at all. flat has no containers, so
+        // before this the only feedback was an empty screen.
+        let l = load("flat");
+        let selected = l.container_tree.children.iter().find(|c| c.is_selected).unwrap();
+
+        let rects = container_rects(&l);
+        assert_eq!(rects.len(), 1, "just the selected window");
+        assert!(rects[0].selected);
+        assert_eq!(rects[0].rect, selected.frame);
     }
 
     #[test]
@@ -292,7 +359,7 @@ mod tests {
         // As captured, the selection is on a top-level window, so root is not
         // drawn and only the two nested containers come back.
         assert!(!l.container_tree.is_selected);
-        let before = container_rects(&l);
+        let before = containers(&l);
         assert_eq!(before.len(), 2);
         assert!(before.iter().all(|r| r.depth > 0));
 
@@ -300,7 +367,7 @@ mod tests {
         // no visible effect at all.
         clear_selection(&mut l.container_tree);
         l.container_tree.is_selected = true;
-        let after = container_rects(&l);
+        let after = containers(&l);
         assert_eq!(after.len(), 3);
         let root_rect = after.iter().find(|r| r.depth == 0).expect("root drawn");
         assert!(root_rect.selected);
