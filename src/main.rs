@@ -73,6 +73,7 @@ fn main() -> Result<()> {
                     "corner_radius": cfg.corner_radius,
                     "level_inset": cfg.level_inset,
                     "dim_factor": cfg.dim_factor,
+                    "window_alpha": cfg.window_alpha,
                     "palette": cfg.colors().iter().map(|c| format!("#{c:08x}")).collect::<Vec<_>>(),
                 },
             });

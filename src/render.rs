@@ -87,7 +87,7 @@ fn band_layers(r: &ContainerRect, cfg: &Config, screen: Rect) -> Vec<Retained<CA
         ),
     );
 
-    let dim = if r.selected { 1.0 } else { cfg.dim_factor };
+    let dim = band_alpha(r, cfg);
     let argb = cfg.color_for_depth(r.depth);
     let steps = cfg.band_width_for_depth(r.depth).max(1.0).round() as usize;
 
@@ -122,6 +122,22 @@ fn band_layers(r: &ContainerRect, cfg: &Config, screen: Rect) -> Vec<Retained<CA
     layers
 }
 
+/// Alpha multiplier for a band, before the inward ramp.
+///
+/// A window's band is checked first: it is always the selection, so the
+/// selected/unselected split below would put it at full opacity and make it
+/// indistinguishable from a container at the same depth, whose palette slot it
+/// shares.
+fn band_alpha(r: &ContainerRect, cfg: &Config) -> f64 {
+    if r.is_window {
+        cfg.window_alpha
+    } else if r.selected {
+        1.0
+    } else {
+        cfg.dim_factor
+    }
+}
+
 /// Geometrically a rounded rect inset by more than its radius has square
 /// corners, but that transition is ugly mid-band, so the radius is floored at a
 /// quarter of the original.
@@ -149,6 +165,23 @@ fn cg_color(argb: u32, dim: f64) -> CFRetained<CGColor> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_window_band_is_neither_full_nor_dim() {
+        // It shares a palette slot with any container at its depth, so alpha
+        // is the only thing telling them apart.
+        let cfg = Config::from_str("").unwrap();
+        let rect = Rect::default();
+        let window = ContainerRect { rect, depth: 1, selected: true, is_window: true };
+        let selected = ContainerRect { rect, depth: 1, selected: true, is_window: false };
+        let dimmed = ContainerRect { rect, depth: 1, selected: false, is_window: false };
+
+        assert_eq!(band_alpha(&selected, &cfg), 1.0);
+        assert_eq!(band_alpha(&dimmed, &cfg), cfg.dim_factor);
+        let w = band_alpha(&window, &cfg);
+        assert!(w < 1.0, "must not read as a selected container");
+        assert!(w > cfg.dim_factor, "must not read as an unselected one");
+    }
 
     #[test]
     fn ring_radius_shrinks_but_never_squares_off() {

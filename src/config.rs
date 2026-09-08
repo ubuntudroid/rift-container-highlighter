@@ -60,6 +60,12 @@ pub struct Config {
     /// Alpha multiplier for containers that do not hold the selection.
     #[serde(default = "default_dim_factor")]
     pub dim_factor: f64,
+    /// Alpha multiplier for the selected window's own band. It is always the
+    /// selection, so `dim_factor` never applies to it; this is what keeps it
+    /// from reading as a container at the same depth, which it shares a
+    /// palette slot with.
+    #[serde(default = "default_window_alpha")]
+    pub window_alpha: f64,
 }
 
 fn default_theme() -> String { FALLBACK_THEME.to_string() }
@@ -78,6 +84,9 @@ fn default_band_decay() -> f64 { 0.6 }
 fn default_corner_radius() -> f64 { 22.0 }
 fn default_level_inset() -> f64 { 3.0 }
 fn default_dim_factor() -> f64 { 0.45 }
+// Below the 1.0 a selected container draws at, and clear of the 0.45 an
+// unselected one uses, so a window band is not mistaken for either.
+fn default_window_alpha() -> f64 { 0.7 }
 
 /// Canonical theme names with a built-in palette. Used by the `themes`
 /// subcommand so `apply-theme.sh` can warn instead of duplicating this list.

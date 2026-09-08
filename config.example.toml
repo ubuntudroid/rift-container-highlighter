@@ -77,3 +77,13 @@ level_inset = 3.0
 # Alpha multiplier for containers that do NOT hold the layout selection. The
 # selected container always draws at full opacity. 1.0 disables dimming.
 dim_factor = 0.45
+
+# Alpha multiplier for the band around the selected *window*, as opposed to a
+# container.
+#
+# A window is only ever drawn when it is the selection, so `dim_factor` never
+# applies to it and it would otherwise draw at full opacity, identical to a
+# selected container at the same depth — it shares that depth's palette slot.
+# Keep this between `dim_factor` and 1.0 so the band reads as "a window, and it
+# is the selection". 1.0 makes a window indistinguishable from a container.
+window_alpha = 0.7

@@ -67,7 +67,8 @@ discards the overlay when the process ends, which is also why `reset` is just a 
 The selected window gets a band of its own, so a press always produces feedback. Without it a flat
 workspace and any selection resting on a leaf both draw nothing, which looks the same as a dead
 keybinding. Only the selected window is drawn — outlining every window would just restate what is
-already on screen.
+already on screen. It draws at `window_alpha` rather than full opacity, because it shares a palette
+slot with any container at the same depth and alpha is the only thing separating them.
 
 A flash retires any flash already on screen before drawing, so tapping a binding repeatedly does
 not leave a stale overlay showing the previous tree for the rest of its own timer.
